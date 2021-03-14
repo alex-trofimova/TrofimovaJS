@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Anketa</title>
+</head>
+<body>
+
+<script>
+// Создать проект ANKETA. Спросить у пользователя:
+// фамилию, имя, отчество РАЗДЕЛЬНО (оператором prompt)
+// возраст в годах (оператором prompt)
+// пол (оператором confirm, например, "ваш пол - мужской?")
+// и вывести оператором alert анкету пользователя по примеру:
+
+// ваше ФИО: Иванов Иван Иванович
+// ваш возраст в годах: 20
+// ваш возраст в днях: 7300
+// через 5 лет вам будет: 25
+// ваш пол: мужской
+// вы на пенсии: нет
+// Должен быть контроль корректности вводимых пользователем данных (например, фамилия не должна быть пустой, возраст должен быть корректной цифрой и т.д.).
+// Оператор alert в коде должен использоваться ровно один раз.
+
+// фамилия
+var surname = prompt('Ваша фамилия?');
+while (surname == '' || surname == null) {
+    surname = prompt('Ваша фамилия?');
+}
+
+// имя
+var firstName = prompt('Ваше имя?');
+while (firstName == '' || firstName == null) {
+    firstName = prompt('Ваше имя?');
+}
+
+// отчество
+var patronymic = prompt('Ваше отчество?');
+while (patronymic == '' || patronymic == null) {
+    patronymic = prompt('Ваше отчество?');
+}
+
+// возраст
+var age = parseInt(prompt('Сколько Вам полных лет?'))
+while (isNaN(age)) {
+    age = parseInt(prompt('Укажите, пожалуйста, Ваш возраст в численном виде!'));
+}
+while (isNaN(age) == false && (age>110 || age<0)) {
+    age = parseInt(prompt('Вряд ли Вам столько! Укажите Ваш реальный возраст!'));  
+}
+
+//половая принадлежность
+var gender = confirm('Если Вы - мужчина, нажмите OK, если женщина - ОТМЕНА');
+    if (gender) {genderStr='мужской';} 
+    else {genderStr='женский';}
+
+//пенсия
+var retire;
+    if ((gender == false && age>=58)||(gender && age>=63)) {retire='да'}
+    else {retire='нет';}
+
+//вывод анкеты   
+    alert('Ваше ФИО: '+surname+' '+firstName+' '+patronymic+
+          '\nВаш возраст в годах: ' +age+
+          '\nВаш возраст в днях: ' +(age*365)+
+          '\nчерез 5 лет Вам будет: ' +(age+5)+
+          '\nВаш пол: ' +genderStr+
+          '\nВы на пенсии: ' +retire);
+
+</script>    
+</body>
+</html>
