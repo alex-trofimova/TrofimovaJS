@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vowels Array methods</title>
+</head>
+<body>
+   
+<script>
+// Переписать ДЗ VOWELS (подсчёт гласных букв в строке) без использования циклов, тремя способами:
+// с использованием метода массива forEach,
+// с использованием метода массива filter,
+// с использованием метода массива reduce.
+
+
+var str = prompt('Введите текст на русском'); //запрашиваю строку у пользователя
+calcVowels1(str); //вызов функции №1
+calcVowels2(str); //вызов функции №2
+calcVowels3(str); //вызов функции №3
+
+//функция №1: использование метода массива forEach
+function calcVowels1(s) {
+    var amount = 0; //объявляю переменную накопления
+    s = s.toLowerCase(); //перевожу все буквы  в нижний регистр
+    var sAr = s.split(''); //превращаю строку в массив
+    v = {'а': true, 'е': true, 'ё': true, 'и': true,'о': true, 
+         'у': true, 'ы': true, 'э': true,'ю': true, 'я': true}; //хэш, где ключи - все гласные алфавита
+    sAr.forEach( //осуществляю перебор всех элементов созданного из строки массива
+        function(elem) { //аргумент функции - очередной элемент массива
+            if (elem in v) {amount+=1;}
+        })
+    console.log(amount);
+}
+
+//функция №2: использование метода массива filter
+function calcVowels2(s) {
+    var amount = 0; 
+    s = s.toLowerCase(); 
+    var sAr = s.split(''); 
+    v = {'а': true, 'е': true, 'ё': true, 'и': true,'о': true, 
+         'у': true, 'ы': true, 'э': true,'ю': true, 'я': true};
+    var onlyVowels = sAr.filter( //создаю новый массив из элементов старого 
+        function(elem) { //удовлетворяющих условию
+            return (elem in v); //совпадения с ключами хэша гласных алфавита
+        })
+    console.log(onlyVowels.length); //вывожу длину созданного массива, что и есть количество гласных
+}
+
+//функция №3: использование метода массива reduce
+function calcVowels3(s) {
+    s = s.toLowerCase(); 
+    var sAr = s.split(''); 
+    v = {'а': true, 'е': true, 'ё': true, 'и': true,'о': true, 
+         'у': true, 'ы': true, 'э': true,'ю': true, 'я': true};
+    var result = sAr.reduce (
+        function(amount,elem) { //первый аргумент - результат предыдущего вызова функции, т.е для нас - переменная накопления
+            if (elem in v) { //при выполнении условия
+                amount+=1; //пополняется переменная накопления и
+                return amount; //возвращается
+            }
+            else return amount; //иначе - только возвращается, без изменений
+        }, 0) // начальное значение первого аргумента функции метода reduce (т.е. переменной накопления)
+    console.log(result);
+}
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vowels</title>
+</head>
+<body>
+
+<script>
+// Написать «чистую» функцию для эффективного подсчёта количества русских гласных букв в строке.
+// Регулярные выражения (кто умеет) не использовать.
+// Спросить у пользователя строку. Вывести в консоль количество русских гласных букв в ней.
+
+//запрашиваю строку у пользователя
+var str = prompt('Введите текст на русском');
+calcVowels(str);
+calcVowelsNew(str);
+
+//функция
+function calcVowels(s) {
+    var amount = 0; //объявляю переменную накопления
+    s = s.toLowerCase(); //перевожу все буквы  в нижний регистр
+    //console.log(s); //проверка
+    l = s.length; //длина строки
+    //console.log(l); //проверка
+    for (var i=0; i < l; i++) { //путем перебора по строке ввожу индекс для каждой буквы
+        if ((s[i] == "а") || (s[i] == "е") || (s[i] == "ё") || (s[i] == "и") || (s[i] == "о") || //проверяю гласная ли
+            (s[i] == "у") || (s[i] == "ы") || (s[i] == "э") || (s[i] == "ю") || (s[i] == "я")) {
+                //console.log(s[i]); //проверка
+                amount+=1; //добавляю в количество если это так   
+        }  
+           
+    }
+    console.log(amount);
+}
+
+//функция модифицирована, использую хэш (как показано в видео)
+function calcVowelsNew(s) {
+    var amount = 0;
+    s = s.toLowerCase(); 
+    l = s.length;
+    v = {'а': true, 'е': true, 'ё': true, 'и': true,'о': true, 
+         'у': true, 'ы': true, 'э': true,'ю': true, 'я': true}; //хэш, где ключи - все гласные алфавита
+    for (var i=0; i < l; i++) {
+        var c = s[i];
+        if (c in v) {amount+=1;} // проверка есть ли элементы строки совпадающие с ключами хэша           
+    }
+    console.log(amount);
+}
+
+</script>
+</body>
+</html>
