@@ -15,8 +15,8 @@
 
 //запрашиваю строку у пользователя
 var str = prompt('Введите текст на русском');
-calcVowels(str);
-calcVowelsNew(str);
+console.log(calcVowels(str));
+console.log(calcVowelsNew(str));
 
 //функция
 function calcVowels(s) {
@@ -30,10 +30,9 @@ function calcVowels(s) {
             (s[i] == "у") || (s[i] == "ы") || (s[i] == "э") || (s[i] == "ю") || (s[i] == "я")) {
                 //console.log(s[i]); //проверка
                 amount+=1; //добавляю в количество если это так   
-        }  
-           
+        }        
     }
-    console.log(amount);
+    return amount;  
 }
 
 //функция модифицирована, использую хэш (как показано в видео)
@@ -47,7 +46,7 @@ function calcVowelsNew(s) {
         var c = s[i];
         if (c in v) {amount+=1;} // проверка есть ли элементы строки совпадающие с ключами хэша           
     }
-    console.log(amount);
+    return amount;
 }
 
 </script>

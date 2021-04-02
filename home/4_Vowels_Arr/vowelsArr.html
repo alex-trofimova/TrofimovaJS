@@ -16,9 +16,9 @@
 
 
 var str = prompt('Введите текст на русском'); //запрашиваю строку у пользователя
-calcVowels1(str); //вызов функции №1
-calcVowels2(str); //вызов функции №2
-calcVowels3(str); //вызов функции №3
+console.log(calcVowels1(str)); //вызов функции №1
+console.log(calcVowels2(str)); //вызов функции №2
+console.log(calcVowels3(str)); //вызов функции №3
 
 //функция №1: использование метода массива forEach
 function calcVowels1(s) {
@@ -31,7 +31,7 @@ function calcVowels1(s) {
         function(elem) { //аргумент функции - очередной элемент массива
             if (elem in v) {amount+=1;}
         })
-    console.log(amount);
+    return amount;
 }
 
 //функция №2: использование метода массива filter
@@ -45,7 +45,7 @@ function calcVowels2(s) {
         function(elem) { //удовлетворяющих условию
             return (elem in v); //совпадения с ключами хэша гласных алфавита
         })
-    console.log(onlyVowels.length); //вывожу длину созданного массива, что и есть количество гласных
+    return onlyVowels.length; //вывожу длину созданного массива, что и есть количество гласных
 }
 
 //функция №3: использование метода массива reduce
@@ -62,7 +62,7 @@ function calcVowels3(s) {
             }
             else return amount; //иначе - только возвращается, без изменений
         }, 0) // начальное значение первого аргумента функции метода reduce (т.е. переменной накопления)
-    console.log(result);
+    return result;
 }
 
 
