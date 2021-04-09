@@ -24,21 +24,29 @@ function randomDiap(n,m) {
         for ( var i=1; i<=colorsCount; i++ ) {
             var n=randomDiap(1,7);
             var colorName=colors[n];
-            if ( colorName in used ) {//проверяю наличие текущего цвета в хэше
-                //если есть, увеличиваю количество выводимых цветов на один (а то только два цвета выведет или даже один)
-                colorsCount++; 
-                continue; //перехожу к следующему цвету
-            }
-            else { //если текущего цвета в хэше нет
+            if ( !(colorName in used) ) {
                 used[colorName] = true; //запоминаю его в этом хэше
                 console.log( colorName );//и вывожу
+            }    
+
+            else { 
+                console.log( "Повтор!");
+                var j=0;
+                while (j<=colorsCount) {
+                    n=randomDiap(1,7);
+                    colorName=colors[n];
+                    if ( colorName in used )
+                        j++;
+                    else {
+                        console.log(colorName);
+                        break; 
+                    }
+                }
             }   
         }
     }
 
 mood(3);
-//проверяла и на другом количестве выводимых цветов
-mood(5);
 
  </script>   
 </body>
