@@ -22,27 +22,13 @@ function randomDiap(n,m) {
         var used={}; //создаю пустой хэш для запоминания уже использованных цветов, ключ - цвет
         console.log( 'цветов: ' + colorsCount );
         for ( var i=1; i<=colorsCount; i++ ) {
-            var n=randomDiap(1,7);
-            var colorName=colors[n];
-            if ( !(colorName in used) ) {
-                used[colorName] = true; //запоминаю его в этом хэше
-                console.log( colorName );//и вывожу
-            }    
-
-            else { 
-                console.log( "Повтор!");
-                var j=0;
-                while (j<=colorsCount) {
-                    n=randomDiap(1,7);
-                    colorName=colors[n];
-                    if ( colorName in used )
-                        j++;
-                    else {
-                        console.log(colorName);
-                        break; 
-                    }
-                }
-            }   
+            do {
+                var n=randomDiap(1,7);
+                var colorName=colors[n];
+            }
+            while ( colorName in used );
+            used[colorName] = true; //запоминаю его в этом хэше
+            console.log( colorName );//и вывожу   
         }
     }
 
