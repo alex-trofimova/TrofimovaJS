@@ -40,11 +40,11 @@ function HashStorageFunc(key,value) {
     self.addValue=function(key,value){
         self.hash[key]=value; //идея: из первого параметра сделать ключ для хэша,
         //из второго параметра - значение для этого хэша
-    }
+    };
 
     self.getValue=function(key){
         return self.hash[key];
-    }
+    };
 
     self.deleteValue=function(key) {
         if (key in self.hash) {
@@ -54,11 +54,11 @@ function HashStorageFunc(key,value) {
         else {
             return false;
         }
-    }
+    };
 
     self.getKeys=function(){
         return Object.keys(self.hash);
-    }
+    };
 }
 
 // 2.
