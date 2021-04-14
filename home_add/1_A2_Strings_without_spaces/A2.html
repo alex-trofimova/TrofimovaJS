@@ -16,23 +16,34 @@
 
 //запрашиваю строку у пользователя
 var str = prompt('Введите текст');
-console.log(delSpaces(str));
+console.log('*' + delSpaces(str) + '*');
 
 //функция
-function delSpaces(s){
-    //убираю начальные пробелы пока они есть
-    while (s.startsWith(' ')) {
-       s = s.slice(1); 
+function delSpaces(s) {
+    var l = s.length;
+
+    //подсчет пробелов слева
+    var amountLeft = 0;
+    for (var i = 0; i < l; i++) {
+        if (s[i] == ' ') {
+            amountLeft++;
+        }
+        else break;
     }
-    //затем убираю конечные пробелы пока они есть
-    while (s.endsWith(' ')) {
-       s = s.slice(0, -1); //использую отрицательное значение, чтобы считать с конца
+
+    //подсчет пробелов справа
+    var amountRight = 0;
+    for (var j = l-1; j > 0; j--) {
+        if (s[j] == ' ') {
+            amountRight++;
+        }
+        else break;
     }
-    //возвращаю результат, добавляя к нему слева и справа символ "*"
-    return ('*' + s + '*');
+    
+    //получение подстроки без пробелов
+    s = s.slice(amountLeft, (l-amountRight));
+    return s;
 }
-
-
 
 </script>
 </body>
