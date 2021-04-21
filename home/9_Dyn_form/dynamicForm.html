@@ -109,7 +109,7 @@ function createForm (newArray) {
 
         newLabel.appendChild(newInput);
         //вывожу элементы списка
-        for (var j = 0; j < formDef1[4].variants.length; j++) {
+        for (var j = 0; j < newArray[i].variants.length; j++) {
           var newOption = document.createElement('option');
           newOption.value = newArray[i].variants[j].value;
           newOption.textContent = newArray[i].variants[j].text;
