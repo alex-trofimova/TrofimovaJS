@@ -39,7 +39,7 @@ function delSpaces(s) {
 
     if (amountLeft == l ) {
         console.log('В вашем тексте одни пробелы!');
-         s = '';
+        s = '';
     }
 
     else {
@@ -58,10 +58,8 @@ function delSpaces(s) {
         else { 
             //получение подстроки без пробелов
             s = s.slice(amountLeft, (l-amountRight));
-        }
-       
+        } 
     }
-    
     return s;
 }
 
