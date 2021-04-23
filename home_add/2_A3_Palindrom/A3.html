@@ -48,22 +48,12 @@ function checkIfPalindrom(s) {
    
     var l = s.length-1; //количество букв в строке
 
-    //переменная amount предназначена для хранения количества совпадающих букв в строке, обнаруженных при проверке
-    var amount = 0; 
     for (var i=0; i<(l/2); i++) {
-        if (s[i] == s[l-i]) {
-            amount++;
-        }
-        else break;    
+        if (!(s[i] == s[l-i])) {
+            return false;
+        } 
     }
-    //если обнаруженное количество совпадений равно (для четного числа всех букв в строке) 
-    //или больше (для нечетного) половины от l, то функция вернет true
-    if (amount >= (l/2)) {
-        return true;
-    }
-    else {
-        return false;
-    }
+    return true;
 }
 
 
