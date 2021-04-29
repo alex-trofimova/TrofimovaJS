@@ -267,7 +267,6 @@ function validateCatalogField (EO) {
 
     // переменная значения поля
     var value = ctlg.value;
-
     if (value == '2') {
         error.textContent = 'Следует выбрать другую рубрику';
     }
@@ -292,14 +291,17 @@ function validatePaymentField (EO) {
     EO=EO||window.event;
 
     var frm = document.forms['validform'];
-    var wrap = document.getElementById('payment');
-    var paym = wrap.querySelector('[name=payment]:checked');
-
+    var paymwrap = document.getElementById('payment');
+    var error = paymwrap.querySelector('span');
+    var paym = paymwrap.querySelector('[name=payment]:checked');
+    
     var valid = false;
     
-    var error = wrap.querySelector('span');
-
-    if (paym.value == '3') {    
+    if (paym == null) {
+        error.textContent = 'Нужно выбрать одно из значений';
+    }
+    
+    else if (paym.value == '33') {    
         error.textContent = 'Размещение VIP пока не доступно';
     }
     else {
@@ -360,12 +362,10 @@ function validateDescriptionField (EO) {
 
     if (!value) {
         error.textContent = 'Поле необходимо заполнить!';
-        desc.focus();
     }
 
     else if (value.length > maxlength) {
         error.textContent = 'Описание должно быть не длиннее '+ maxlength+ ' символов';
-        desc.focus();
     }
 
     else {
@@ -384,7 +384,7 @@ frm.addEventListener('submit',validateForm);
 function validateForm (EO) {
     EO=EO||window.event;
 
-    //try {
+    try {
         /*вызываю функции валидации всех полей и
         прописываю условия непрохождения валидации:
         1. неотправки на сервер; 
@@ -394,59 +394,81 @@ function validateForm (EO) {
         // 1) Поле "Разработчики"
         var dev = frm.elements['developers'];
         var devVal = validateDevField ();
-        if (!devVal) {
-            EO.preventDefault(); // форма не будет отправлена на сервер
-            dev.focus();
-            return;
-        }
-
         // 2) Поле "Название сайта"
         var stnm = frm.elements['siteName'];
         var stnmVal = validateSitenameField ();
-        if (!stnmVal) {
-            EO.preventDefault();
-            stnm.focus();
-            return;
-        }
-
         // 3) Поле "URL сайта"
         var sturl = frm.elements['siteUrl']; 
         var sturlVal = validateSiteUrlField ();
-
-        if (!sturlVal) {
-            EO.preventDefault();
-            sturl.focus();
-            return;
-        }
-
         // 4) Поле "Дата запуска сайта"
         var stdt = frm.elements['siteDate'];
         var stdtVal = validateSiteDateField ();
-        if (!stdtlVal) {
-            EO.preventDefault();
-            stdt.focus();
-            return;
-        }
-        
         // 5) Поле "Посетителей в сутки"
         var visnmb = frm.elements['visitorsNumber'];
         var visnmbVal = validateVisNumberField ();
-        if (!visnmbVal) {
-            EO.preventDefault();
-            visnmb.focus();
-            return;
-        }
-
         // 6) Поле "E-mail для связи"
         var mail = frm.elements['email'];
         var mailVal = validateMailField ();
-        if (!mailVal) {
+        // 8) Поле "Размещение"
+        var paymwrap = document.getElementById('payment');
+        var paymVal = validatePaymentField ();
+        // 9) Поле "Разрешить отзывы"
+        var votes = frm.elements['votes'];
+        var votesVal = validateVotesField ();
+        // 10) Поле "Описание сайта"
+        var desc = frm.elements['description'];
+        var descVal = validateDescriptionField ();
+
+        //делаю условия вложенными друг в друга, 
+        //причем в глубине располагаю условие самого первого поля (для того чтобы фокусировка к нему сначала шла)
+        if (!descVal) {
+            desc.focus();
+            if (!votesVal) {
+                votes.focus();
+                if (!paymVal) {
+                    paymwrap.scrollIntoView();
+                    if (!mailVal) {
+                        mail.focus();
+                        if (!visnmbVal) {
+                            visnmb.focus();
+                            if (!stdtVal) {
+                                stdt.focus();
+                                if (!sturlVal) {
+                                    sturl.focus();
+                                    if (!stnmVal) {
+                                        stnm.focus();
+                                        if (!devVal) {
+                                            dev.focus();
+                                            EO.preventDefault();
+                                            return;
+                                        }
+                                    EO.preventDefault();
+                                    return;
+                                    }
+                                    EO.preventDefault();
+                                    return;
+                                }
+                                EO.preventDefault();
+                                return;
+                            }
+                            EO.preventDefault();
+                            return;
+                        }
+                        EO.preventDefault();
+                        return;
+                    }
+                    EO.preventDefault();
+                    return;
+                }
+                EO.preventDefault();
+                return;
+            }
             EO.preventDefault();
-            mail.focus();
             return;
         }
-
-        // 7) Поле "Рубрика каталога"
+        
+        //запускаю отдельно, т.к. это поле всегда заполнено по умолчанию
+        //7) Поле "Рубрика каталога"
         var ctlg = frm.elements['catalog'];
         var ctlgVal = validateCatalogField ();
         if (!ctlgVal) {
@@ -454,37 +476,11 @@ function validateForm (EO) {
             ctlg.focus();
             return;
         }
-
-        // 8) Поле "Размещение"
-        var paymwrap = document.getElementById('payment');
-        var paymVal = validatePaymentField ();
-        if (!paymVal) {
-            EO.preventDefault();
-            wrap.scrollIntoView();
-            return;
-        }
-
-        // 9) Поле "Разрешить отзывы"
-        var votes = frm.elements['votes'];
-        var votesVal = validateVotesField ();
-        if (!votesVal) {
-            EO.preventDefault();
-            votes.focus();
-            return;
-        }
-
-        // 10) Поле "Описание сайта"
-        var desc = frm.elements['description'];
-        var descVal = validateDescriptionField ();
-        if (!descVal) {
-            EO.preventDefault();
-            desc.focus();
-            return;
-        }
-    //}
-    // catch ( ex ) {
-    //     alert('Cбой отправки сообщения!');
-    //     EO.preventDefault();
-    // }
+    
+    }
+    catch ( ex ) {
+        alert('Cбой отправки сообщения!');
+        EO.preventDefault();
+    }
 }    
 
