@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css" type="text/css">
+    <title>Валидация формы на JS</title>
+</head>
+<body>
+    <form action="https://fe.it-academy.by/TestForm.php" name="validform" method="POST">
+        <p>Для внесения вашего сайта в каталог, заполните форму:</p>
+        
+        <div class="wrapper" id ="developers">
+            <label for="developers">Разработчики:</label>
+            <input type="text" name="developers" class="field longtext">
+        </div>
+        
+        <div class="wrapper" id="siteName">
+            <label for="siteName">Название сайта:</label>
+            <input type="text" name="siteName" class="field longtext">
+        </div>
+        
+        <div class="wrapper" id="siteUrl"> 
+            <label for="siteUrl">URL сайта:</label>
+            <input type="text" name="siteUrl" class="field middletext">
+        </div>
+        
+        <div class="wrapper" id="siteDate">
+            <label for="siteDate">Дата запуска сайта:</label>
+            <input type="text" name="siteDate" class="field smalltext">
+        </div>
+        
+        <div class="wrapper" id="visitorsNumber" >
+            <label for="visitorsNumber">Посетителей в сутки:</label>
+            <input type="text" name="visitorsNumber" class="field smalltext">
+        </div>
+        
+        <div class="wrapper" id="email" >
+            <label for="email">E-mail для связи:</label>
+            <input type="email" name="email" class="field middletext">
+        </div>
+        
+        <div class="wrapper" id="catalog">
+            <label for="catalog">Рубрика каталога:</label>
+            <select name="catalog" class="middletext">
+                <option value="1">здоровье</option>
+                <option value="2">домашний уют</option>
+                <option value="3" selected>бытовая техника</option>
+            </select>
+        </div>
+        
+        <div class="wrapper" id="payment">
+            <label for="payment">Размещение:</label>
+            <div class="radio" id="radio">
+                <label>
+                    <input type="radio" name="payment" value="1">бесплатное
+                </label>
+                <label>
+                    <input type="radio" name="payment" value="2">платное
+                </label>
+                <label>
+                    <input type="radio" name="payment" value="3">VIP
+                </label>
+            </div>
+        </div>
+        
+        <div class="wrapper" id="votes">
+            <label for="votes">Разрешить отзывы:</label>
+            <input type="checkbox" name="votes"> 
+        </div>
+        
+        <div class="wrapper text" id="description" >
+            <label for="description">Описание сайта:</label>
+            <textarea name="description" class="field memo"></textarea>
+        </div>
+        
+        <input type="submit" value="Опубликовать">
+    </form>
+
+    <script src="script.js"></script>
+</body>
+</html>

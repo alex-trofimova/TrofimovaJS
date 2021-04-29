@@ -47,7 +47,7 @@ function checkIfPalindrom(s) {
     s = s.split('ь').join(''); //убираю ь
    
     var l = s.length-1; //количество букв в строке
-
+    console.log(s.length);
     for (var i=0; i<(l/2); i++) {
         if (!(s[i] == s[l-i])) {
             return false;

@@ -1,0 +1,33 @@
+.wrapper {
+  display: flex;
+  margin-bottom: 5px;
+}
+
+.wrapper label {
+  width: 180px;
+}
+
+.longtext {
+  width: 400px;
+}
+
+.middletext {
+  width: 300px;
+}
+
+.smalltext {
+  width: 100px;
+}
+
+.text {
+  flex-direction: column;
+}
+
+.memo {
+  width: 580px;
+}
+
+.error {
+  color: red;
+  margin-left: 10px;
+}
