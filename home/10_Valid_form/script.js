@@ -29,7 +29,7 @@ function createSpan () {
 var frm = document.forms['validform']; 
 
 // осуществляю поиск каждого элемента формы по его атрибуту name
-// подписываюсь на событие blur для него
+// подписываюсь на событие blur/change/click для него
 // описывающую соответствующую функцию валидации
 
 // 1) Поле "Разработчики"
@@ -253,7 +253,6 @@ function validateMailField (EO) {
 // 7) Поле "Рубрика каталога"
 var ctlg = frm.elements['catalog'];
 ctlg.addEventListener('change',validateCatalogField);
-
 //функция не позволяет выбрать "домашний уют"
 function validateCatalogField (EO) {
     EO=EO||window.event;
@@ -262,12 +261,12 @@ function validateCatalogField (EO) {
     var wrap = document.getElementById('catalog');
     var error = wrap.querySelector('span');
     var ctlg = frm.elements['catalog'];
-
     var valid = false;
 
     // переменная значения поля
     var value = ctlg.value;
-    if (value == '2') {
+
+    if (value == '3') {
         error.textContent = 'Следует выбрать другую рубрику';
     }
 
@@ -275,7 +274,6 @@ function validateCatalogField (EO) {
         error.textContent = '';
         valid = true;
     }
-
     return valid;
 }
 
@@ -409,6 +407,9 @@ function validateForm (EO) {
         // 6) Поле "E-mail для связи"
         var mail = frm.elements['email'];
         var mailVal = validateMailField ();
+        //7) Поле "Рубрика каталога"
+        var ctlg = frm.elements['catalog'];
+        var ctlgVal = validateCatalogField ();
         // 8) Поле "Размещение"
         var paymwrap = document.getElementById('payment');
         var paymVal = validatePaymentField ();
@@ -427,23 +428,28 @@ function validateForm (EO) {
                 votes.focus();
                 if (!paymVal) {
                     paymwrap.scrollIntoView();
-                    if (!mailVal) {
-                        mail.focus();
-                        if (!visnmbVal) {
-                            visnmb.focus();
-                            if (!stdtVal) {
-                                stdt.focus();
-                                if (!sturlVal) {
-                                    sturl.focus();
-                                    if (!stnmVal) {
-                                        stnm.focus();
-                                        if (!devVal) {
-                                            dev.focus();
-                                            EO.preventDefault();
-                                            return;
+                    if (!ctlgVal) {
+                        ctlg.focus();
+                        if (!mailVal) {
+                            mail.focus();
+                            if (!visnmbVal) {
+                                visnmb.focus();
+                                if (!stdtVal) {
+                                    stdt.focus();
+                                    if (!sturlVal) {
+                                        sturl.focus();
+                                        if (!stnmVal) {
+                                            stnm.focus();
+                                            if (!devVal) {
+                                                dev.focus();
+                                                EO.preventDefault();
+                                                return;
+                                            }
+                                        EO.preventDefault();
+                                        return;
                                         }
-                                    EO.preventDefault();
-                                    return;
+                                        EO.preventDefault();
+                                        return;
                                     }
                                     EO.preventDefault();
                                     return;
@@ -469,13 +475,13 @@ function validateForm (EO) {
         
         //запускаю отдельно, т.к. это поле всегда заполнено по умолчанию
         //7) Поле "Рубрика каталога"
-        var ctlg = frm.elements['catalog'];
-        var ctlgVal = validateCatalogField ();
-        if (!ctlgVal) {
-            EO.preventDefault();
-            ctlg.focus();
-            return;
-        }
+        // var ctlg = frm.elements['catalog'];
+        // var ctlgVal = validateCatalogField ();
+        // if (!ctlgVal) {
+        //     EO.preventDefault();
+        //     ctlg.focus();
+        //     return;
+        // }
     
     }
     catch ( ex ) {
