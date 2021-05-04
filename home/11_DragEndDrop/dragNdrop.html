@@ -5,10 +5,25 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Drag & drop</title>
+
+<style>
+     .image_container {
+        position: relative;
+    }
+
+    .cars {
+        border: 1px solid black;
+    }
+
+    
+</style>    
 </head>
 <body>
 <div class="image_container">
-
+    <img id="car1" src="img/car1.jpg" alt="car_1" class="cars">
+    <img id="car2" src="img/car2.jpg" alt="car_2" class="cars">
+    <img id="car3" src="img/car3.jpg" alt="car_3" class="cars">
+    <img id="car4" src="img/car4.jpg" alt="car_4" class="cars">
 </div> 
 <script>
 /*
@@ -20,7 +35,102 @@
 Когда начинается перетаскивание какой-либо картинки, остальные картинки не должны сдвигаться.
 Картинка, перетаскивание которой началось, должна оказываться выше (ближе к глазам), чем остальные.
 На время перетаскивания менять форму курсора на подходящую.
-*/    
+*/ 
+
+"use strict";
+//чтобы картинки предзагружались, использую событие load на объекте window
+window.onload = function() {
+    console.log('Страница загружена');
+
+    /* 1) делаю позиционирование картинок абсолютным,
+    сначала "читаю" их координаты, position делаю absolute,
+    затем возвращаю (устанавливаю) эти же координаты
+    делаю все в обратном порядке
+    */
+    var cars = document.getElementsByClassName('cars');
+
+    for (var i=cars.length-1; i>=0; i--) {
+
+        var leftPos = cars[i].offsetLeft;
+        var topPos = cars[i].offsetTop;
+
+        cars[i].style.position = 'absolute';
+
+        cars[i].style.left = leftPos + 'px';
+        cars[i].style.top = topPos + 'px';
+
+        //2) подписываю все картинки на событие mousedown
+        cars[i].onmousedown = objMouseStart;
+    }
+
+    /*3) описываю функцию обработчика события mousedown 
+    (в ней же подписываюсь на mousemove и mouseup)
+    */
+
+    // ввожу перменные для запоминания координат точки наведения мыши относительно левого верхнего угла картинки  
+    var pressShiftLeft = 0;
+    var pressShiftTop = 0;
+
+    // ввожу переменную для объекта перемещения (пока здесь ничего нет)
+    var draggedCar=null;
+
+    //сама функция
+    function objMouseStart(EO) {
+        EO=EO||window.event; //эта строка для кроссбраузерности (ведь объект события м.б. в EO или в window.event)
+
+        EO.preventDefault();
+
+        draggedCar=EO.target;
+
+        //меняю форму курсора
+        draggedCar.style.cursor = 'pointer';
+
+        //чтобы перетаскиваемая картинка оказалось сверху увеличиваю ее z-index на 100, затем вычту
+        draggedCar.style.zIndex=+100;
+
+        //запоминаю координаты точки наведения мыши относительно левого верхнего угла картинки
+        pressShiftLeft = EO.clientX - draggedCar.offsetLeft;
+        pressShiftTop = EO.clientY - draggedCar.offsetTop;
+
+        //подписываюсь на остальные события
+        document.onmousemove = objMouseMove;
+        draggedCar.onmouseup = objMouseEnd;
+    }
+
+    //описываю соответствующие функции
+    function objMouseEnd(EO) {
+        EO=EO||window.event;
+
+        EO.preventDefault();
+
+        //возвращаю исходную форму курсора
+        draggedCar.style.cursor = 'default';
+
+        //и исходное значение z-index
+        draggedCar.style.zIndex=-100;
+
+        //отменяю все события
+        document.onmousemove = null;
+        draggedCar.onmouseup = null;
+
+        //"очищаю" объект перетаскивания
+        draggedCar = null;
+    }
+    //сама функция для перетаскивания
+    function objMouseMove(EO) {
+        EO=EO||window.event;
+
+        EO.preventDefault();
+        
+        //новое положение объекта
+        draggedCar.style.left = (EO.pageX - pressShiftLeft) + 'px';
+        draggedCar.style.top = (EO.pageY - pressShiftTop) + 'px';
+    }
+};
+
+
+
+
 </script>   
 </body>
 </html>
