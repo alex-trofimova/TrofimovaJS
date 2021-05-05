@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Palindrom by recursion</title>
+</head>
+<body>
+<script>
+/*
+Написать чистую функцию, проверяющую, что переданная ей фраза является палиндромом, с использованием рекурсии.
+Массивы при решении не использовать.
+При проверке должны игнорироваться:
+ - регистр букв;
+ - пробелы;
+ - знаки препинания;
+ - мягкие и твёрдые знаки;
+ - разница между буквами "е" и "ё".
+Внимание: не надо строку очищать от игнорируемых символов с помощью рекурсии; 
+рекурсию нужно применять только при проверке, является ли очищенная строка палиндромом.
+*/
+
+"use strict";
+
+//запрашиваю строку у пользователя
+var str = prompt('Введите текст');
+
+if (checkIfPalindromByRecursion(str)) {
+    alert('это палиндром');
+}
+else {
+    alert('это не палиндром');
+}
+
+
+//функция
+function checkIfPalindromByRecursion(s) {
+    s = s.toLowerCase(); //перевожу в нижний регистр
+
+    var regexp = /[а-я]/gi;
+    s = s.match(regexp).join(''); //оставляю только буквы (убираю пробелы и знаки препинания)
+
+    s = s.split('ё').join('е'); //заменяю ё на е
+    s = s.split('ъ').join(''); //убираю ъ
+    s = s.split('ь').join(''); //убираю ь
+    
+    //вызов рекурсивной функции
+    var res = recurs(s);
+
+    //рекурсивная функция для проверки
+    function recurs(s) {
+        if ((s.length == 0) || (s.length == 1)) { //условие остановки рекурсии - дохождение до середины строки (2 варианта: четное и нечетное число букв)
+            return true;
+        }
+            
+        else {
+            if (!(s[0] == s[s.length-1])) {
+                return false;
+            }
+            else {
+                return recurs(s.slice(1,s.length-1));
+            }
+        }
+    }
+    return res;
+}
+
+
+
+</script>    
+</body>
+</html>
