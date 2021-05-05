@@ -19,7 +19,7 @@
 </style>    
 </head>
 <body>
-<div class="image_container">
+<div id="container" class="image_container">
     <img id="car1" src="img/car1.jpg" alt="car_1" class="cars">
     <img id="car2" src="img/car2.jpg" alt="car_2" class="cars">
     <img id="car3" src="img/car3.jpg" alt="car_3" class="cars">
@@ -81,12 +81,13 @@ window.onload = function() {
         EO.preventDefault();
 
         draggedCar=EO.target;
+        
+        //переношу перетаскиваемый элемент в конец контейнера - оберточного div-а с изображениями
+        var container = document.getElementById('container');
+        container.appendChild(draggedCar);
 
         //меняю форму курсора
         draggedCar.style.cursor = 'pointer';
-
-        //чтобы перетаскиваемая картинка оказалось сверху увеличиваю ее z-index на 100, затем вычту
-        draggedCar.style.zIndex=+100;
 
         //запоминаю координаты точки наведения мыши относительно левого верхнего угла картинки
         pressShiftLeft = EO.clientX - draggedCar.offsetLeft;
@@ -105,9 +106,6 @@ window.onload = function() {
 
         //возвращаю исходную форму курсора
         draggedCar.style.cursor = 'default';
-
-        //и исходное значение z-index
-        draggedCar.style.zIndex=-100;
 
         //отменяю все события
         document.onmousemove = null;
