@@ -52,11 +52,7 @@ function buildWrapper(tagName) {
             //информацию об атрибутах сохраняю в массив (а вдруг атрибутов будет несколько - легче добавить)
             var attrArr = [];
             for (var key in attr) {
-                attrArr.push(' ' + key +'=\''+ correctPhrase(attr[key]) + '\''); // пополняю массив
-            }
-
-            for (var i=0; i<attrArr.length; i++) {
-                attrText +=  attrArr[i];
+                attrText += ' ' + key +'=\''+ correctPhrase(attr[key]) + '\''; // пополняю массив
             }
         }
 
