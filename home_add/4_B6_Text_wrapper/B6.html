@@ -27,48 +27,40 @@ B6+
 
 "use strict";
 
-//описание функции для строковых коррекций (выношу, т.к. буду использовать дважды)
-function correctPhrase(s) {
-    //заменяю требуемые символы на их мнемоники
-    s=s.split('&').join('&amp;');
-    s=s.split('<').join('&lt;');
-    s=s.split('>').join('&gt;');
-    s=s.split('\'').join('&apos;');
-    s=s.split('\"').join('&quot;');
-    return s;
-}
-
-
 //описание функции, которая возвращает функцию
 function buildWrapper(tagName) {
+
+    //описание функции для строковых коррекций (выношу, т.к. буду использовать дважды)
+    function correctPhrase(s) {
+        //заменяю требуемые символы на их мнемоники
+        s=s.split('&').join('&amp;');
+        s=s.split('<').join('&lt;');
+        s=s.split('>').join('&gt;');
+        s=s.split('\'').join('&apos;');
+        s=s.split('\"').join('&quot;');
+        return s;
+    }
     
     var wrap = function(s,attr) {
 
         s = correctPhrase(s);
 
-        var attr1 = '';
-        var attr2 = '';
+        var attrText = ''; //переменная, которая будет хранить инфо обо всех атрибутах
 
         //если второй аргумент функции wrap задан, то 
         if (attr) {
             //информацию об атрибутах сохраняю в массив (а вдруг атрибутов будет несколько - легче добавить)
             var attrArr = [];
-            var i=0;
             for (var key in attr) {
-                attr[key] = correctPhrase(attr[key]);
-                attrArr[i]=' ' + key +'=\''+ attr[key] + '\'';
-                
-                i++;
+                attrArr.push(' ' + key +'=\''+ correctPhrase(attr[key]) + '\''); // пополняю массив
             }
 
-            attr1 = attrArr[0];
-
-            if (attrArr[1]) {
-                attr2 = attrArr[1];
+            for (var i=0; i<attrArr.length; i++) {
+                attrText +=  attrArr[i];
             }
         }
 
-        return s = s.replace(s,'<'+tagName+attr1+attr2+'>'+s+'</'+tagName+'>');
+        return s = s.replace(s,'<'+tagName+attrText+'>'+s+'</'+tagName+'>');
     }
     
     return wrap;
@@ -81,6 +73,7 @@ console.log( wrapP("Однажды в <студёную> зимнюю пору")
 
 var wrapH1=buildWrapper("H1"); // строим функцию для оборачивания текста в тег H1
 console.log( wrapH1("СТИХИ",{align:"center",title:"M&M's"}) );
+console.log( wrapH1("СТИХИ",{align:"center",title:"M&M's",color:"red"}) );//проверка, если будет больше атрибутов
 
 
 </script>    
