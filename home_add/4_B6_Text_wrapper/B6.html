@@ -49,10 +49,9 @@ function buildWrapper(tagName) {
 
         //если второй аргумент функции wrap задан, то 
         if (attr) {
-            //информацию об атрибутах сохраняю в массив (а вдруг атрибутов будет несколько - легче добавить)
-            var attrArr = [];
+            //информацию об атрибутах сохраняю в attrText
             for (var key in attr) {
-                attrText += ' ' + key +'=\''+ correctPhrase(attr[key]) + '\''; // пополняю массив
+                attrText += ' ' + key +'=\''+ correctPhrase(attr[key]) + '\'';
             }
         }
 
