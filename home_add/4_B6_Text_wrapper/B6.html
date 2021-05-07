@@ -26,10 +26,7 @@ B6+
 */
 
 "use strict";
-//описание функции для выбора тега, в который будет оборачиваться текст
-function buildWrapper(tagName) {
-    return tagName;
-}
+
 //описание функции для строковых коррекций (выношу, т.к. буду использовать дважды)
 function correctPhrase(s) {
     //заменяю требуемые символы на их мнемоники
@@ -41,54 +38,50 @@ function correctPhrase(s) {
     return s;
 }
 
-//построение функции для оборачивания текста в тег P
-var wrapP = buildWrapper("P");
-var tagP=wrapP; //запоминаю название тега в переменной
 
-//функциональное выражение (Function Expression) для оборачивания текста в тег P
-wrapP = function(s,attr) {
+//описание функции, которая возвращает функцию
+function buildWrapper(tagName) {
     
-    s = correctPhrase(s);
+    var wrap = function(s,attr) {
 
-    //ввожу переменную для атрибута lang тега P, пока в ней пустая строка
-    var attrP = '';
+        s = correctPhrase(s);
 
-    //если второй аргумент функции wrapP задан, то 
-    if (attr) {
-        //вывожу в переменные ключ и его значение
-        var attrName = Object.keys(attr)[0];
-        var attrValue = attr['lang'];
-        //составляю нужную фразу (отступ спереди + замена ":" на "=" и двойные кавычки на одинарные)
-        attrP=' ' + attrName +'=\''+ attrValue + '\''; 
+        var attr1 = '';
+        var attr2 = '';
+
+        //если второй аргумент функции wrap задан, то 
+        if (attr) {
+            //информацию об атрибутах сохраняю в массив (а вдруг атрибутов будет несколько - легче добавить)
+            var attrArr = [];
+            var i=0;
+            for (var key in attr) {
+                attr[key] = correctPhrase(attr[key]);
+                attrArr[i]=' ' + key +'=\''+ attr[key] + '\'';
+                
+                i++;
+            }
+
+            attr1 = attrArr[0];
+
+            if (attrArr[1]) {
+                attr2 = attrArr[1];
+            }
+        }
+
+        return s = s.replace(s,'<'+tagName+attr1+attr2+'>'+s+'</'+tagName+'>');
     }
-    //получаю нужную фразу
-    return s = s.replace(s,'<'+tagP+attrP+'>'+s+'</'+tagP+'>');
+    
+    return wrap;
 }
 
-//проверка
+var wrapP = buildWrapper("P"); // строим функцию для оборачивания текста в тег P
 console.log( wrapP("Однажды в студёную зимнюю пору") );
 console.log( wrapP("Однажды в студёную зимнюю пору",{lang:"ru"}) );
 console.log( wrapP("Однажды в <студёную> зимнюю пору") );
 
-
-//построение функции для оборачивания текста в тег H1
-var wrapH1 = buildWrapper("H1");
-var tagH1=wrapH1;
-wrapH1 = function(s,attr) {
-    //информацию об атрибутах сохраняю в массив (а вдруг атрибутов будет несколько - легче добавить)
-    var attrH1 = [];
-    var i=0;
-    for (var key in attr) {
-        attr[key] = correctPhrase(attr[key]);
-        attrH1[i]=' ' + key +'=\''+ attr[key] + '\'';
-        
-        i++;
-    }
-    //получаю нужную фразу
-    return s = s.replace(s,'<'+tagH1+attrH1[0]+attrH1[1]+'>'+s+'</'+tagH1+'>');
-}
-
+var wrapH1=buildWrapper("H1"); // строим функцию для оборачивания текста в тег H1
 console.log( wrapH1("СТИХИ",{align:"center",title:"M&M's"}) );
+
 
 </script>    
 </body>
