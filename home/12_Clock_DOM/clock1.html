@@ -54,21 +54,21 @@ const BIG_CIRCLE_RADIUS = 200, //радиус циферблата (полови
       //СТРЕЛКИ
       //часовая
       HOUR_LENGTH = BIG_CIRCLE_RADIUS*0.5, //длина стрелки в процентах (=50%) от размеров циферблата
-      HOUR_WIDTH = 4, //толщина стрелки в пикселях
+      HOUR_WIDTH = 5, //толщина стрелки в пикселях
       HOUR_ROUNDING = 10, //радиус закругления в пикселях
       HOUR_COLOR = '#272e2b', //цвет стрелки
       HOUR_ROTATE_ANGLE = 360/12,//угол поворота стрелки за один час в градусах (=30 градусов)
 
       //минутная
       MINUTE_LENGTH = BIG_CIRCLE_RADIUS*0.7, //длина стрелки в процентах (=75%) от размеров циферблата
-      MINUTE_WIDTH = 3, //толщина стрелки в пикселях
+      MINUTE_WIDTH = 5, //толщина стрелки в пикселях
       MINUTE_ROUNDING = 8, //радиус закругления в пикселях
       MINUTE_COLOR = '#272e2b', //цвет стрелки
       MINUTE_ROTATE_ANGLE = 360/60,//угол поворота стрелки за одну минуту в градусах (=6 градусов)
 
       //секундная
       SECOND_LENGTH = BIG_CIRCLE_RADIUS*0.85, //длина стрелки в процентах (=85%) от размеров циферблата
-      SECOND_WIDTH = 1, //толщина стрелки в пикселях
+      SECOND_WIDTH = 5, //толщина стрелки в пикселях
       SECOND_ROUNDING = 6, //радиус закругления в пикселях
       SECOND_COLOR = 'red', //цвет стрелки
       SECOND_ROTATE_ANGLE = 360/60; //угол поворота стрелки за одну секунду в градусах (=6 градусов)
@@ -139,11 +139,13 @@ hourArrow.style.borderRadius = HOUR_ROUNDING+'px';
 hourArrow.style.borderStyle = 'solid';
 hourArrow.style.borderColor = HOUR_COLOR;
 hourArrow.style.backgroundColor = HOUR_COLOR;
+hourArrow.style.opacity = '0.1';
+
 hourArrow.style.borderWidth = HOUR_WIDTH+'px';
 hourArrow.style.position = 'absolute';
-hourArrow.style.left = 1.02*(CLOCK_CENTER_POS-HOUR_WIDTH/2)+'px'; //чуть сдвигаю положение (+2%)
-hourArrow.style.top = (CLOCK_CENTER_POS-HOUR_LENGTH)+'px';
-hourArrow.style.transformOrigin = "0 98%"; //на тот же процент смещаю центр вращения (-2%)
+hourArrow.style.left = (CLOCK_CENTER_POS-HOUR_WIDTH/2)+'px'; 
+hourArrow.style.top = (CLOCK_CENTER_POS-0.95*HOUR_LENGTH)+'px';
+hourArrow.style.transformOrigin = HOUR_WIDTH/2+'px'+' '+0.95*HOUR_LENGTH +'px';
 
 bigCircle.append(hourArrow);
 
@@ -154,11 +156,12 @@ minuteArrow.style.borderRadius = MINUTE_ROUNDING+'px';
 minuteArrow.style.borderStyle = 'solid';
 minuteArrow.style.borderColor = MINUTE_COLOR;
 minuteArrow.style.backgroundColor = MINUTE_COLOR;
+minuteArrow.style.opacity = '0.1';
 minuteArrow.style.borderWidth = MINUTE_WIDTH+'px';
 minuteArrow.style.position = 'absolute';
-minuteArrow.style.left = 1.02*(CLOCK_CENTER_POS-MINUTE_WIDTH/2)+'px';//чуть сдвигаю положение (+2%)
-minuteArrow.style.top = (CLOCK_CENTER_POS-MINUTE_LENGTH)+'px';
-minuteArrow.style.transformOrigin = "0 98%"; //на тот же процент смещаю центр вращения (-2%)
+minuteArrow.style.left = (CLOCK_CENTER_POS-MINUTE_WIDTH/2)+'px';
+minuteArrow.style.top = (CLOCK_CENTER_POS-0.95*MINUTE_LENGTH)+'px';
+minuteArrow.style.transformOrigin = MINUTE_WIDTH/2+'px'+' '+0.95*MINUTE_LENGTH +'px'; 
 
 bigCircle.append(minuteArrow);
 
@@ -168,11 +171,12 @@ secondArrow.style.height = SECOND_LENGTH + 'px';
 secondArrow.style.borderRadius = SECOND_ROUNDING+'px';
 secondArrow.style.borderStyle = 'solid';
 secondArrow.style.borderColor = SECOND_COLOR;
+secondArrow.style.opacity = '0.1';
 secondArrow.style.borderWidth = SECOND_WIDTH+'px';
 secondArrow.style.position = 'absolute';
-secondArrow.style.left = 1.02*(CLOCK_CENTER_POS-SECOND_WIDTH/2)+'px';//чуть сдвигаю положение (+2%)
-secondArrow.style.top = (CLOCK_CENTER_POS-SECOND_LENGTH)+'px';
-secondArrow.style.transformOrigin = "0 98%"; //на тот же процент смещаю центр вращения (-2%)
+secondArrow.style.left = (CLOCK_CENTER_POS-SECOND_WIDTH/2)+'px';
+secondArrow.style.top = (CLOCK_CENTER_POS-0.95*SECOND_LENGTH)+'px';
+secondArrow.style.transformOrigin = SECOND_WIDTH/2+'px'+' '+0.95*SECOND_LENGTH +'px'; 
 
 bigCircle.append(secondArrow);
 
@@ -207,7 +211,7 @@ setInterval(showTime,1000);
 
         var seconds=currTime.getSeconds();
         var secStep = SECOND_ROTATE_ANGLE*seconds;
-        secondArrow.style.transform = "rotate("+secStep+"deg)";
+        secondArrow.style.transform = "rotate("+secStep+"deg) translate(0px, 0px)";//пробовала менять значение у translate, становилось только хуже
 
         //чтобы минутная стрелка двигалась плавно, шаг (угол смещения) для нее делаю дробным, 
         //например, 1 минута + 0.1 минуты (если прошло 6 секунд еще)
