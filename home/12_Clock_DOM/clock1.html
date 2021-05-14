@@ -196,6 +196,7 @@ setInterval(showTime,1000);
     function showTime() {
         var currTime=new Date();
         var currTimeStr=formatTime(currTime);
+        console.log(currTimeStr);
         digitalClock.innerHTML=currTimeStr;
 
         var seconds=currTime.getSeconds();
