@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clock by DOM</title>
+</head>
+<body>
+<script>
+/*
+Создать проект CLOCK_DOM. Реализовать методами DOM показывающие текущее время 
+и идущие в реальном времени часы по нижеуказанному макету.
+Цифры часов не верстать «жёстко», создавать их и вычислять их позиции в цикле.
+Никаких «волшебных констант» в коде не использовать — все константы вынести 
+в начало скрипта с чётким документированием.
+*/
+
+"use strict";
+
+//константы
+      //МЕХАНИЧЕСКИЕ ЧАСЫ
+const BIG_CIRCLE_RADIUS = 200, //радиус циферблата (половина диаметра большого круга)
+      BIG_CIRCLE_COLOR = '#fcca66', //цвет заливки
+
+      //ЭЛЕКТРОННЫЕ ЧАСЫ
+      DIGITAL_CLOCK_POS_X = 0.7*BIG_CIRCLE_RADIUS, //положение по горизонтали 
+      DIGITAL_CLOCK_POS_Y = 0.5*BIG_CIRCLE_RADIUS, //положение по высоте, на четверти круга, поэтому 0.5 радиуса
+
+      //параметры текста цифр электронных часов
+      DIG_FONT_FAMILY = 'Arial',//шрифт
+      DIG_FONT_WEIGHT = 'bold',//жирность начертания
+      DIG_FONT_SIZE = 32,//размер шрифта в пикселях  
+
+      //ЦЕНТР механических часов в виде маленького кружочка
+      CLOCK_CENTER_RADIUS = BIG_CIRCLE_RADIUS*0.01, //его радиус в процентах (=1%) от размеров циферблата
+      CLOCK_CENTER_POS = BIG_CIRCLE_RADIUS-CLOCK_CENTER_RADIUS, //положение (с учетом размеров)
+      CLOCK_CENTER_COLOR = 'black', //цвет заливки
+      
+      //ЦИФРЫ (12 кружков с цифрами)
+      SMALL_CIRCLE_RADIUS = BIG_CIRCLE_RADIUS*0.125, //радиус в процентах (=12.5%) от размеров циферблата
+      SMALL_CIRCLE_COLOR = '#48b383', //цвет заливки
+      SMALL_CIRCLE_AMOUNT = 12, //количество кружков и, соответственно цифр
+      ANGLE_ROTATE_GRAD = 360/SMALL_CIRCLE_AMOUNT,//угол в градусах между соседними кружками
+      ANGLE_ROTATE_RAD = ANGLE_ROTATE_GRAD/180*Math.PI,//он же в радианах
+
+
+      TO_NUMBERS_DISTANCE = BIG_CIRCLE_RADIUS*0.8, // положение кружков в в процентах (=80%) от размеров циферблата
+
+      //параметры текста цифр аналоговых часов
+      FONT_FAMILY = 'Arial',//шрифт
+      FONT_WEIGHT = 'bold',//жирность начертания
+
+      //СТРЕЛКИ
+      //часовая
+      HOUR_LENGTH = BIG_CIRCLE_RADIUS*0.5, //длина стрелки в процентах (=50%) от размеров циферблата
+      HOUR_WIDTH = 4, //толщина стрелки в пикселях
+      HOUR_ROUNDING = 10, //радиус закругления в пикселях
+      HOUR_COLOR = '#272e2b', //цвет стрелки
+      HOUR_ROTATE_ANGLE = 360/12,//угол поворота стрелки за один час в градусах (=30 градусов)
+
+      //минутная
+      MINUTE_LENGTH = BIG_CIRCLE_RADIUS*0.7, //длина стрелки в процентах (=75%) от размеров циферблата
+      MINUTE_WIDTH = 3, //толщина стрелки в пикселях
+      MINUTE_ROUNDING = 8, //радиус закругления в пикселях
+      MINUTE_COLOR = '#272e2b', //цвет стрелки
+      MINUTE_ROTATE_ANGLE = 360/60,//угол поворота стрелки за одну минуту в градусах (=6 градусов)
+
+      //секундная
+      SECOND_LENGTH = BIG_CIRCLE_RADIUS*0.85, //длина стрелки в процентах (=85%) от размеров циферблата
+      SECOND_WIDTH = 1, //толщина стрелки в пикселях
+      SECOND_ROUNDING = 6, //радиус закругления в пикселях
+      SECOND_COLOR = 'red', //цвет стрелки
+      SECOND_ROTATE_ANGLE = 360/60; //угол поворота стрелки за одну секунду в градусах (=6 градусов)
+
+
+//СОЗДАНИЕ ЭЛЕМЕНТОВ ЧАСОВ
+
+//оберточный div
+var cont = document.createElement('div');
+cont.className = 'container';
+document.body.prepend(cont);
+
+//большой круг - циферблат
+var bigCircle = document.createElement('div');
+
+bigCircle.className = 'big_circle';
+bigCircle.style.height = 2*BIG_CIRCLE_RADIUS+'px';
+bigCircle.style.width = 2*BIG_CIRCLE_RADIUS+'px';
+bigCircle.style.backgroundColor = BIG_CIRCLE_COLOR;
+bigCircle.style.borderRadius = '50%';
+bigCircle.style.position = 'relative';
+
+cont.append(bigCircle);
+
+//центр
+var center = document.createElement('div');
+
+center.style.height = 2*CLOCK_CENTER_RADIUS+'px';
+center.style.width = 2*CLOCK_CENTER_RADIUS+'px';
+center.style.backgroundColor = CLOCK_CENTER_COLOR;
+center.style.borderRadius = '50%';
+center.style.position = 'absolute';
+center.style.left = CLOCK_CENTER_POS+'px';
+center.style.top = CLOCK_CENTER_POS+'px';
+
+bigCircle.append(center);
+
+//маленькие кружочки с цифрами
+for (var i=1; i<=SMALL_CIRCLE_AMOUNT; i++) {
+    var smallCircle = document.createElement('div');
+    
+    smallCircle.style.position = 'absolute';
+    smallCircle.style.height = 2*SMALL_CIRCLE_RADIUS+'px';
+    smallCircle.style.width = 2*SMALL_CIRCLE_RADIUS+'px';
+    smallCircle.style.backgroundColor = SMALL_CIRCLE_COLOR;
+    smallCircle.style.borderRadius = '50%';
+    
+    smallCircle.innerHTML = i;
+    smallCircle.style.lineHeight = '300%';
+    smallCircle.style.fontFamily = FONT_FAMILY;
+    smallCircle.style.fontWeight = FONT_WEIGHT;
+    smallCircle.style.textAlign = 'center';
+
+    //задаю положение кружочков, каждый на 30 град от соседнего
+    var smallCirclePosX = CLOCK_CENTER_POS + TO_NUMBERS_DISTANCE*Math.sin(i*ANGLE_ROTATE_RAD);
+    var smallCirclePosY = CLOCK_CENTER_POS - TO_NUMBERS_DISTANCE*Math.cos(i*ANGLE_ROTATE_RAD);
+
+    smallCircle.style.left = Math.round(smallCirclePosX-SMALL_CIRCLE_RADIUS)+'px';
+    smallCircle.style.top = Math.round(smallCirclePosY-SMALL_CIRCLE_RADIUS)+'px';
+
+    bigCircle.append(smallCircle);
+}
+
+//часовая стрелка
+var hourArrow = document.createElement('div');
+hourArrow.style.height = HOUR_LENGTH + 'px';
+hourArrow.style.borderRadius = HOUR_ROUNDING+'px';
+hourArrow.style.borderStyle = 'solid';
+hourArrow.style.borderColor = HOUR_COLOR;
+hourArrow.style.backgroundColor = HOUR_COLOR;
+hourArrow.style.borderWidth = HOUR_WIDTH+'px';
+hourArrow.style.position = 'absolute';
+hourArrow.style.left = 1.02*(CLOCK_CENTER_POS-HOUR_WIDTH/2)+'px'; //чуть сдвигаю положение (+2%)
+hourArrow.style.top = (CLOCK_CENTER_POS-HOUR_LENGTH)+'px';
+hourArrow.style.transformOrigin = "0 98%"; //на тот же процент смещаю центр вращения (-2%)
+
+bigCircle.append(hourArrow);
+
+//минутная стрелка
+var minuteArrow = document.createElement('div');
+minuteArrow.style.height = MINUTE_LENGTH + 'px';
+minuteArrow.style.borderRadius = MINUTE_ROUNDING+'px';
+minuteArrow.style.borderStyle = 'solid';
+minuteArrow.style.borderColor = MINUTE_COLOR;
+minuteArrow.style.backgroundColor = MINUTE_COLOR;
+minuteArrow.style.borderWidth = MINUTE_WIDTH+'px';
+minuteArrow.style.position = 'absolute';
+minuteArrow.style.left = 1.02*(CLOCK_CENTER_POS-MINUTE_WIDTH/2)+'px';//чуть сдвигаю положение (+2%)
+minuteArrow.style.top = (CLOCK_CENTER_POS-MINUTE_LENGTH)+'px';
+minuteArrow.style.transformOrigin = "0 98%"; //на тот же процент смещаю центр вращения (-2%)
+
+bigCircle.append(minuteArrow);
+
+//секундная стрелка
+var secondArrow = document.createElement('div');
+secondArrow.style.height = SECOND_LENGTH + 'px';
+secondArrow.style.borderRadius = SECOND_ROUNDING+'px';
+secondArrow.style.borderStyle = 'solid';
+secondArrow.style.borderColor = SECOND_COLOR;
+secondArrow.style.borderWidth = SECOND_WIDTH+'px';
+secondArrow.style.position = 'absolute';
+secondArrow.style.left = 1.02*(CLOCK_CENTER_POS-SECOND_WIDTH/2)+'px';//чуть сдвигаю положение (+2%)
+secondArrow.style.top = (CLOCK_CENTER_POS-SECOND_LENGTH)+'px';
+secondArrow.style.transformOrigin = "0 98%"; //на тот же процент смещаю центр вращения (-2%)
+
+bigCircle.append(secondArrow);
+
+//ЭЛЕКТРОННЫЕ ЧАСЫ
+//в формате чч:мм:сс
+var digitalClock = document.createElement('div');
+digitalClock.style.position = 'absolute';
+digitalClock.style.left = DIGITAL_CLOCK_POS_X+'px';
+digitalClock.style.top = DIGITAL_CLOCK_POS_Y+'px';
+digitalClock.style.textAlign = 'center';
+digitalClock.style.fontFamily = DIG_FONT_FAMILY;
+digitalClock.style.fontSize = DIG_FONT_SIZE+'px';
+digitalClock.style.fontWeight = DIG_FONT_WEIGHT;
+
+bigCircle.append(digitalClock);
+
+//УСТАНОВКА (ЗАПУСК) ТАЙМЕРА
+
+setInterval(showTime,1000);
+
+    function showTime() {
+        var currTime=new Date();
+        var currTimeStr=formatTime(currTime);
+        digitalClock.innerHTML=currTimeStr;
+
+        var seconds=currTime.getSeconds();
+        var secStep = SECOND_ROTATE_ANGLE*seconds;
+        secondArrow.style.transform = "rotate("+secStep+"deg)";
+
+        //чтобы минутная стрелка двигалась плавно, шаг (угол смещения) для нее делаю дробным, 
+        //например, 1 минута + 0.1 минуты (если прошло 6 секунд еще)
+        var minutes = currTime.getMinutes();
+        var minStep = MINUTE_ROTATE_ANGLE*(minutes+seconds/60);
+        minuteArrow.style.transform = "rotate("+minStep+"deg)";
+
+        //аналогично для часовой: + дробная часть за счет минут
+        var hours=currTime.getHours();
+        var hourStep = HOUR_ROTATE_ANGLE*(hours+minutes/60);
+        hourArrow.style.transform = "rotate("+hourStep+"deg)";
+    }
+
+    // форматирует переданную дату-время в формате дд.мм.гггг чч:мм:сс
+    function formatTime(dt) {
+        var hours=dt.getHours();
+        var minutes=dt.getMinutes();
+        var seconds=dt.getSeconds();
+        return str0l(hours,2) + ':' + str0l(minutes,2) + ':' + str0l(seconds,2);
+    }
+
+    // дополняет строку val слева нулями до длины len
+    function str0l(val,len) {
+        var strVal=val.toString();
+        while ( strVal.length < len )
+            strVal='0'+strVal;
+        return strVal;
+    }
+    
+</script>    
+</body>
+</html>
