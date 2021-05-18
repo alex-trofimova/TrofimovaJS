@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clock by Canvas</title>
+</head>
+<body>
+
+    <div class="container">
+       <canvas id='ClockCanvas' width="400" height="400">
+
+       </canvas>
+    </div>
+
+<script>
+/*
+Реализовать часы (проект CLOCK_CANVAS) с использованием Canvas.
+Описание — в домашнем задании про проект CLOCK_DOM.
+
+В отличие от часов на DOM и SVG, в часах на Canvas я не советую ПОВОРАЧИВАТЬ стрелки - это будет непросто и непонятно.
+Лучше просто РИСОВАТЬ их из центра в нужную точку.
+Т.е. не так: "берём стрелку, смотрящую вверх, и поворачиваем на нужный угол",
+а так: "рассчитываем, в какую точку должна показывать стрелка, и рисуем линию из центра часов в эту точку".
+*/
+//константы
+      //МЕХАНИЧЕСКИЕ ЧАСЫ
+      const BIG_CIRCLE_RADIUS = 200, //радиус циферблата (половина диаметра большого круга)
+      BIG_CIRCLE_COLOR = '#fcca66', //цвет заливки
+
+      //ЭЛЕКТРОННЫЕ ЧАСЫ
+      DIGITAL_CLOCK_POS_X = BIG_CIRCLE_RADIUS, //положение по горизонтали 
+      DIGITAL_CLOCK_POS_Y = 0.6*BIG_CIRCLE_RADIUS, //положение по высоте, примерно на четверти круга
+
+      //параметры текста цифр электронных часов
+      DIG_FONT_FAMILY = 'Arial',//шрифт
+      DIG_FONT_WEIGHT = 'bold',//жирность начертания
+      DIG_FONT_SIZE = 32,//размер шрифта в пикселях  
+
+      //ЦЕНТР механических часов в виде маленького кружочка
+      CLOCK_CENTER_RADIUS = BIG_CIRCLE_RADIUS*0.01, //его радиус в процентах (=1%) от размеров циферблата
+      CLOCK_CENTER_POS = BIG_CIRCLE_RADIUS, //положение (с учетом размеров)
+      CLOCK_CENTER_COLOR = 'black', //цвет заливки
+      
+      //ЦИФРЫ (12 кружков с цифрами)
+      SMALL_CIRCLE_RADIUS = BIG_CIRCLE_RADIUS*0.125, //радиус в процентах (=12.5%) от размеров циферблата
+      SMALL_CIRCLE_COLOR = '#48b383', //цвет заливки
+      SMALL_CIRCLE_AMOUNT = 12, //количество кружков и, соответственно, цифр
+      ANGLE_ROTATE_GRAD = 360/SMALL_CIRCLE_AMOUNT,//угол в градусах между соседними кружками
+      ANGLE_ROTATE_RAD = ANGLE_ROTATE_GRAD/180*Math.PI,//он же в радианах
+
+
+      TO_NUMBERS_DISTANCE = BIG_CIRCLE_RADIUS*0.8, // положение кружков в в процентах (=80%) от размеров циферблата
+
+      //параметры текста цифр аналоговых часов
+      TEXT_COLOR = 'black',
+      FONT_FAMILY = 'Arial',//шрифт
+      FONT_WEIGHT = 'bold',//жирность начертания
+      FONT_SIZE = 16,
+
+      //СТРЕЛКИ
+      //часовая
+      HOUR_LENGTH = BIG_CIRCLE_RADIUS*0.5, //длина стрелки в процентах (=50%) от размеров циферблата
+      HOUR_WIDTH = 8, //толщина стрелки
+      HOUR_COLOR = 'rgba(50,50,50,0.5)', //цвет стрелки
+      HOUR_ROTATE_ANGLE = 360/12,//угол поворота стрелки за один час в градусах (=30 градусов)
+      HOUR_ROTATE_ANGLE_RAD = HOUR_ROTATE_ANGLE/180*Math.PI,
+
+      //минутная
+      MINUTE_LENGTH = BIG_CIRCLE_RADIUS*0.7, //длина стрелки в процентах (=75%) от размеров циферблата
+      MINUTE_WIDTH = 5, //толщина стрелки
+      MINUTE_COLOR = 'rgba(50,50,50,0.5)', //цвет стрелки
+      MINUTE_ROTATE_ANGLE = 360/60,//угол поворота стрелки за одну минуту в градусах (=6 градусов)
+      MINUTE_ROTATE_ANGLE_RAD = MINUTE_ROTATE_ANGLE/180*Math.PI,
+      
+
+      //секундная
+      SECOND_LENGTH = BIG_CIRCLE_RADIUS*0.85, //длина стрелки в процентах (=85%) от размеров циферблата
+      SECOND_WIDTH = 3, //толщина стрелки
+      SECOND_COLOR = 'rgba(255,0,0,0.5)', //цвет стрелки
+      SECOND_ROTATE_ANGLE = 360/60, //угол поворота стрелки за одну секунду в градусах (=6 градусов)
+      SECOND_ROTATE_ANGLE_RAD = SECOND_ROTATE_ANGLE/180*Math.PI;
+      
+
+//СОЗДАНИЕ ЭЛЕМЕНТОВ ЧАСОВ
+
+var cvs = document.getElementById('ClockCanvas');
+var context = cvs.getContext('2d');
+
+showTime();
+
+//УСТАНОВКА (ЗАПУСК) ТАЙМЕРА
+setInterval(showTime,1000);
+
+    function showTime() {
+        var currTime=new Date();
+        var currTimeStr=formatTime(currTime);
+        console.log(currTimeStr);
+
+// форматирует переданную дату-время в формате дд.мм.гггг чч:мм:сс
+    function formatTime(dt) {
+            var hours=dt.getHours();
+            var minutes=dt.getMinutes();
+            var seconds=dt.getSeconds();
+            return str0l(hours,2) + ':' + str0l(minutes,2) + ':' + str0l(seconds,2);
+    }
+
+        // дополняет строку val слева нулями до длины len
+    function str0l(val,len) {
+            var strVal=val.toString();
+            while ( strVal.length < len )
+                strVal='0'+strVal;
+            return strVal;
+    }
+
+        //большой круг - циферблат
+        context.fillStyle = BIG_CIRCLE_COLOR;
+        context.beginPath();
+        context.arc(CLOCK_CENTER_POS, CLOCK_CENTER_POS, BIG_CIRCLE_RADIUS, 0, 2*Math.PI, false);
+        context.fill();
+
+        //центр
+        context.fillStyle = CLOCK_CENTER_COLOR;
+        context.beginPath();
+        context.arc(CLOCK_CENTER_POS, CLOCK_CENTER_POS, CLOCK_CENTER_RADIUS, 0, 2*Math.PI, false);
+        context.fill();
+
+        //электронные часы
+        //в формате чч:мм:сс
+        context.fillStyle = TEXT_COLOR;
+        context.font = 'normal '+DIG_FONT_WEIGHT+' '+DIG_FONT_SIZE+'px '+DIG_FONT_FAMILY;
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.fillText(currTimeStr,DIGITAL_CLOCK_POS_X,DIGITAL_CLOCK_POS_Y);
+
+        //маленькие кружочки с цифрами
+        for (var i=1; i<=SMALL_CIRCLE_AMOUNT; i++) {
+            var smallCirclePosX = Math.round(CLOCK_CENTER_POS + TO_NUMBERS_DISTANCE*Math.sin(i*ANGLE_ROTATE_RAD));
+            var smallCirclePosY = Math.round(CLOCK_CENTER_POS - TO_NUMBERS_DISTANCE*Math.cos(i*ANGLE_ROTATE_RAD));
+
+            context.fillStyle = SMALL_CIRCLE_COLOR;
+            context.beginPath();
+            context.arc(smallCirclePosX, smallCirclePosY, SMALL_CIRCLE_RADIUS, 0, 2*Math.PI, false);
+            context.fill();
+
+            context.fillStyle = TEXT_COLOR;
+            context.font = 'normal '+FONT_WEIGHT+' '+FONT_SIZE+'px '+FONT_FAMILY;
+            context.textAlign = 'center';
+            context.textBaseline = 'middle';
+            context.fillText(i,smallCirclePosX,smallCirclePosY);
+        }
+
+        //ОТРИСОВКА СТРЕЛОК
+
+        //СЕКУНДНАЯ СТРЕЛКА
+        var seconds=currTime.getSeconds();
+        //рассчитываю угол поворота стрелки для 1 секунды
+        var secStep = SECOND_ROTATE_ANGLE_RAD*seconds;
+
+        //учитываю, что начало стрелки и центр вращения не совпадают! Для этого "разбиваю" стрелку на 2 части
+        //коэффицциенты 0.9 и 0.1 используются для пересчета длин большой и маленькой части стрелки, соответственно
+        //т.е. пересчитываю координаты для начала и конца для каждого такого поворота, чтобы "перерисовывать" стрелку
+        var secondArrowStartPosX = Math.round(CLOCK_CENTER_POS - 0.1*SECOND_LENGTH*Math.sin(secStep));
+        var secondArrowStartPosY = Math.round(CLOCK_CENTER_POS + 0.1*SECOND_LENGTH*Math.cos(secStep));
+        var secondArrowEndPosX = Math.round(CLOCK_CENTER_POS + 0.9*SECOND_LENGTH*Math.sin(secStep));
+        var secondArrowEndPosY = Math.round(CLOCK_CENTER_POS - 0.9*SECOND_LENGTH*Math.cos(secStep));
+        
+        //сама отрисовка
+        context.strokeStyle = SECOND_COLOR; //цвет стрелки
+        context.lineWidth = SECOND_WIDTH; // ширина стрелки
+        context.lineCap = 'round'; //закругление
+        context.beginPath();
+        context.moveTo(secondArrowStartPosX, secondArrowStartPosY);
+        context.lineTo(secondArrowEndPosX,secondArrowEndPosY);
+        context.stroke();
+
+
+        //МИНУТНАЯ СТРЕЛКА
+        var minutes = currTime.getMinutes();
+        var minStep = MINUTE_ROTATE_ANGLE_RAD*(minutes+seconds/60);
+
+        //аналогичный пересчет координат
+        var minuteArrowStartPosX = Math.round(CLOCK_CENTER_POS - 0.1*MINUTE_LENGTH*Math.sin(minStep));
+        var minuteArrowStartPosY = Math.round(CLOCK_CENTER_POS + 0.1*MINUTE_LENGTH*Math.cos(minStep));
+        var minuteArrowEndPosX = Math.round(CLOCK_CENTER_POS + 0.9*MINUTE_LENGTH*Math.sin(minStep));
+        var minuteArrowEndPosY = Math.round(CLOCK_CENTER_POS - 0.9*MINUTE_LENGTH*Math.cos(minStep));
+        
+        //сама отрисовка
+        context.strokeStyle = MINUTE_COLOR; //цвет стрелки
+        context.lineWidth = MINUTE_WIDTH; // ширина стрелки
+        context.lineCap = 'round'; //закругление
+        context.beginPath();
+        context.moveTo(minuteArrowStartPosX, minuteArrowStartPosY);
+        context.lineTo(minuteArrowEndPosX, minuteArrowEndPosY);
+        context.stroke();
+
+         //ЧАСОВАЯ СТРЕЛКА
+        var hours=currTime.getHours();
+        var hourStep = HOUR_ROTATE_ANGLE_RAD*(hours+minutes/60);
+
+        //аналогичный пересчет координат
+        var hourArrowStartPosX = Math.round(CLOCK_CENTER_POS - 0.1*HOUR_LENGTH*Math.sin(hourStep));
+        var hourArrowStartPosY = Math.round(CLOCK_CENTER_POS + 0.1*HOUR_LENGTH*Math.cos(hourStep));
+        var hourArrowEndPosX = Math.round(CLOCK_CENTER_POS + 0.9*HOUR_LENGTH*Math.sin(hourStep));
+        var hourArrowEndPosY = Math.round(CLOCK_CENTER_POS - 0.9*HOUR_LENGTH*Math.cos(hourStep));
+        
+        //сама отрисовка
+        context.strokeStyle = HOUR_COLOR; //цвет стрелки
+        context.lineWidth = HOUR_WIDTH; // ширина стрелки
+        context.lineCap = 'round'; //закругление
+        context.beginPath();
+        context.moveTo(hourArrowStartPosX, hourArrowStartPosY);
+        context.lineTo(hourArrowEndPosX, hourArrowEndPosY);
+        context.stroke();
+    }
+
+</script>    
+</body>
+</html>
