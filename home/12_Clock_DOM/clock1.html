@@ -23,6 +23,8 @@
 const BIG_CIRCLE_RADIUS = 200, //радиус циферблата (половина диаметра большого круга)
       BIG_CIRCLE_COLOR = '#fcca66', //цвет заливки
 
+      CENTER = 200,
+
       //ЭЛЕКТРОННЫЕ ЧАСЫ
       DIGITAL_CLOCK_POS_X = 0.7*BIG_CIRCLE_RADIUS, //положение по горизонтали 
       DIGITAL_CLOCK_POS_Y = 0.5*BIG_CIRCLE_RADIUS, //положение по высоте, на четверти круга, поэтому 0.5 радиуса
@@ -123,8 +125,8 @@ for (var i=1; i<=SMALL_CIRCLE_AMOUNT; i++) {
     smallCircle.style.textAlign = 'center';
 
     //задаю положение кружочков, каждый на 30 град от соседнего
-    var smallCirclePosX = CLOCK_CENTER_POS + TO_NUMBERS_DISTANCE*Math.sin(i*ANGLE_ROTATE_RAD);
-    var smallCirclePosY = CLOCK_CENTER_POS - TO_NUMBERS_DISTANCE*Math.cos(i*ANGLE_ROTATE_RAD);
+    var smallCirclePosX = CENTER + TO_NUMBERS_DISTANCE*Math.sin(i*ANGLE_ROTATE_RAD);
+    var smallCirclePosY = CENTER - TO_NUMBERS_DISTANCE*Math.cos(i*ANGLE_ROTATE_RAD);
 
     smallCircle.style.left = Math.round(smallCirclePosX-SMALL_CIRCLE_RADIUS)+'px';
     smallCircle.style.top = Math.round(smallCirclePosY-SMALL_CIRCLE_RADIUS)+'px';
@@ -143,9 +145,9 @@ hourArrow.style.opacity = '0.1';
 
 hourArrow.style.borderWidth = HOUR_WIDTH+'px';
 hourArrow.style.position = 'absolute';
-hourArrow.style.left = (CLOCK_CENTER_POS-HOUR_WIDTH/2)+'px'; 
-hourArrow.style.top = (CLOCK_CENTER_POS-0.95*HOUR_LENGTH)+'px';
-hourArrow.style.transformOrigin = HOUR_WIDTH/2+'px'+' '+0.95*HOUR_LENGTH +'px';
+hourArrow.style.left = (CENTER-HOUR_WIDTH)+'px'; 
+hourArrow.style.top = (CENTER-0.95*HOUR_LENGTH)+'px';
+hourArrow.style.transformOrigin = HOUR_WIDTH+'px'+' '+0.95*HOUR_LENGTH +'px';
 
 bigCircle.append(hourArrow);
 
@@ -159,9 +161,9 @@ minuteArrow.style.backgroundColor = MINUTE_COLOR;
 minuteArrow.style.opacity = '0.1';
 minuteArrow.style.borderWidth = MINUTE_WIDTH+'px';
 minuteArrow.style.position = 'absolute';
-minuteArrow.style.left = (CLOCK_CENTER_POS-MINUTE_WIDTH/2)+'px';
-minuteArrow.style.top = (CLOCK_CENTER_POS-0.95*MINUTE_LENGTH)+'px';
-minuteArrow.style.transformOrigin = MINUTE_WIDTH/2+'px'+' '+0.95*MINUTE_LENGTH +'px'; 
+minuteArrow.style.left = (CENTER-MINUTE_WIDTH)+'px';
+minuteArrow.style.top = (CENTER-0.95*MINUTE_LENGTH)+'px';
+minuteArrow.style.transformOrigin = MINUTE_WIDTH+'px'+' '+0.95*MINUTE_LENGTH +'px'; 
 
 bigCircle.append(minuteArrow);
 
@@ -174,9 +176,16 @@ secondArrow.style.borderColor = SECOND_COLOR;
 secondArrow.style.opacity = '0.1';
 secondArrow.style.borderWidth = SECOND_WIDTH+'px';
 secondArrow.style.position = 'absolute';
-secondArrow.style.left = (CLOCK_CENTER_POS-SECOND_WIDTH/2)+'px';
-secondArrow.style.top = (CLOCK_CENTER_POS-0.95*SECOND_LENGTH)+'px';
-secondArrow.style.transformOrigin = SECOND_WIDTH/2+'px'+' '+0.95*SECOND_LENGTH +'px'; 
+secondArrow.style.left = (CENTER-SECOND_WIDTH)+'px';
+secondArrow.style.top = (CENTER-0.95*SECOND_LENGTH)+'px';
+secondArrow.style.transformOrigin = SECOND_WIDTH+'px'+' '+0.95*SECOND_LENGTH +'px';
+
+console.log(CENTER);
+console.log(SECOND_WIDTH);
+console.log(center.style.left);
+
+console.log(secondArrow.style.left);
+console.log(secondArrow.style.top);
 
 bigCircle.append(secondArrow);
 

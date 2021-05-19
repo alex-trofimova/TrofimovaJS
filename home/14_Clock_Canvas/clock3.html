@@ -88,7 +88,10 @@
 var cvs = document.getElementById('ClockCanvas');
 var context = cvs.getContext('2d');
 
-showTime();
+window.onload = function() {
+    console.log('Страница загружена');
+    showTime();
+}
 
 //УСТАНОВКА (ЗАПУСК) ТАЙМЕРА
 setInterval(showTime,1000);
