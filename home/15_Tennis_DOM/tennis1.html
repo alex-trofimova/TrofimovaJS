@@ -304,7 +304,7 @@ function moveBallAndRackets() {
     //отскок от правой стены
     if (ballH.posX > FIELD_WIDTH-BALL_DIAMETER-RACKET_WIDTH) {
         //если под мячом окажется ракетка:
-        if ((ballH.posY-BALL_RADIUS > rightRacketH.posY) && (ballH.posY-BALL_RADIUS < rightRacketH.posY+RACKET_LENGTH)) {
+        if ((ballH.posY > rightRacketH.posY) && (ballH.posY < rightRacketH.posY+RACKET_LENGTH)) {
             ballH.speedX =-ballH.speedX;
             //console.log('отбили');
             ballH.posX=FIELD_WIDTH-BALL_DIAMETER-RACKET_WIDTH; 
@@ -315,6 +315,9 @@ function moveBallAndRackets() {
             ballH.posX=FIELD_WIDTH-BALL_DIAMETER;
             scoreLeft++; //добавляю очко сопернику
             scoreField.innerHTML = scoreLeft+' : '+scoreRight; //вывожу счет
+            //останавливаю ракетки
+            rightRacketH.speedY = RIGHT_RACKET_SPEED_INIT;
+            leftRacketH.speedY = LEFT_RACKET_SPEED_INIT;
             cancelAnimationFrame(timerID); //выключаю таймер
             return; //просто останавливаю функцию
         }
@@ -323,7 +326,7 @@ function moveBallAndRackets() {
     //аналогично
     //отскок от левой стены
     if (ballH.posX < RACKET_WIDTH) {
-        if ((ballH.posY-BALL_RADIUS > leftRacketH.posY) && (ballH.posY-BALL_RADIUS < leftRacketH.posY+RACKET_LENGTH)) {
+        if ((ballH.posY > leftRacketH.posY) && (ballH.posY < leftRacketH.posY+RACKET_LENGTH)) {
             ballH.speedX =-ballH.speedX;
             //console.log('отбили');
             ballH.posX=RACKET_WIDTH; 
@@ -333,6 +336,8 @@ function moveBallAndRackets() {
             ballH.posX=0;
             scoreRight++;
             scoreField.innerHTML = scoreLeft+' : '+scoreRight;
+            rightRacketH.speedY = RIGHT_RACKET_SPEED_INIT;
+            leftRacketH.speedY = LEFT_RACKET_SPEED_INIT;
             cancelAnimationFrame(timerID);
             return;
         }
