@@ -61,8 +61,10 @@ LEFT_RACKET_POS_INIT_Y = FIELD_HEIGHT*1/5,
 RIGHT_RACKET_POS_INIT_X = FIELD_WIDTH-RACKET_WIDTH,
 RIGHT_RACKET_POS_INIT_Y = FIELD_HEIGHT*3/5,
 //скорости перемещения ракеток (по вертикали)
-LEFT_RACKET_SPEED = 10,
-RIGHT_RACKET_SPEED = 10,
+LEFT_RACKET_SPEED_INIT = 0,
+RIGHT_RACKET_SPEED_INIT = 0,
+LEFT_RACKET_SPEED_ACT = 1,
+RIGHT_RACKET_SPEED_ACT = 1,
 
 //Мячик
 BALL_RADIUS = 10,//радиус
@@ -74,9 +76,16 @@ BALL_POS_INIT_Y = FIELD_HEIGHT/2 - BALL_RADIUS,
 
 //Параметры движения мяча
 BALL_STEP = 1,//скорость равномерного перемещения
-//диапазон углов вылета
+
 BALL_START_ANGLE_0 = 0,
-BALL_START_ANGLE_FIN = 360,
+//диапазон углов вылета
+//справа
+BALL_START_ANGLE_1 = Math.atan(FIELD_HEIGHT/FIELD_WIDTH)*180/Math.PI, //в градусах
+BALL_START_ANGLE_2 = BALL_START_ANGLE_1+90,
+//слева
+BALL_START_ANGLE_3 = BALL_START_ANGLE_2+90,
+BALL_START_ANGLE_4 = BALL_START_ANGLE_3+90,
+
 
 //Коды клавиш
 KEY_SHIEFT = 16,
@@ -176,7 +185,7 @@ var ballH = {
 var leftRacketH = {
         posX : LEFT_RACKET_POS_INIT_X,
         posY : LEFT_RACKET_POS_INIT_Y,
-        speedY : LEFT_RACKET_SPEED,
+        speedY : LEFT_RACKET_SPEED_INIT,
 
         update : function() {
             var leftRacketElem=document.getElementById('leftRacket');
@@ -189,7 +198,7 @@ var leftRacketH = {
 var rightRacketH = {
         posX : RIGHT_RACKET_POS_INIT_X,
         posY : RIGHT_RACKET_POS_INIT_Y,
-        speedY : RIGHT_RACKET_SPEED,
+        speedY : RIGHT_RACKET_SPEED_INIT,
 
         update : function() {
             var rightRacketElem=document.getElementById('rightRacket');
@@ -212,47 +221,48 @@ document.addEventListener("keyup", keyUpControl, false);
 
 //описываю функции: при нажатии одной из клавиш меняется Y-позиция ракетки
 function keyDownControl(e) {
-    //левой (учитываю ограничения перемещения ракеток из-за конечной ширины игрового поля)
-    if(e.keyCode == KEY_SHIEFT && leftRacketH.posY>0) {
+    //левой
+    if(e.keyCode == KEY_SHIEFT) {
         leftRacketUp = true;
-        leftRacketH.posY-=leftRacketH.speedY;
+        leftRacketH.speedY = -LEFT_RACKET_SPEED_ACT;
     }
 
-    else if(e.keyCode == KEY_CTRL && leftRacketH.posY<FIELD_HEIGHT-RACKET_LENGTH) {
+    else if(e.keyCode == KEY_CTRL) {
         leftRacketDown = true;
-        leftRacketH.posY+=leftRacketH.speedY;
+        leftRacketH.speedY = LEFT_RACKET_SPEED_ACT;
     }
 
     //и правой
-    else if(e.keyCode == KEY_UP_ARROW && rightRacketH.posY>0) {
+    else if(e.keyCode == KEY_UP_ARROW) {
         rightRacketUp = true;
-        rightRacketH.posY-=rightRacketH.speedY;
+        rightRacketH.speedY = -RIGHT_RACKET_SPEED_ACT;
     }
 
-    else if(e.keyCode == KEY_DOWN_ARROW && rightRacketH.posY<FIELD_HEIGHT-RACKET_LENGTH) {
+    else if(e.keyCode == KEY_DOWN_ARROW) {
         rightRacketDown = true;
-        rightRacketH.posY+=rightRacketH.speedY;
+        rightRacketH.speedY = RIGHT_RACKET_SPEED_ACT;
     }
-
-    leftRacketH.update();
-    rightRacketH.update();
 }
 
 function keyUpControl(e) {
-    if(e.keyCode == 16) {
+    if(e.keyCode == KEY_SHIEFT) {
         leftRacketUp = false;
+        leftRacketH.speedY = LEFT_RACKET_SPEED_INIT;
     }
 
-    else if(e.keyCode == 17) {
+    else if(e.keyCode == KEY_CTRL) {
         leftRacketDown = false;
+        leftRacketH.speedY = LEFT_RACKET_SPEED_INIT;
     }
 
-    else if(e.keyCode == 38) {
+    else if(e.keyCode == KEY_UP_ARROW) {
         rightRacketUp = false;
+        rightRacketH.speedY = RIGHT_RACKET_SPEED_INIT;
     }
 
-    else if(e.keyCode == 40) {
+    else if(e.keyCode == KEY_DOWN_ARROW) {
         rightRacketDown = false;
+        rightRacketH.speedY = RIGHT_RACKET_SPEED_INIT;
     }
 }
 //переменные для ведения счета
@@ -262,15 +272,23 @@ function keyUpControl(e) {
 //ПО НАЖАТИИ КНОПКИ ЗАПУСК ТАЙМЕРА И ДВИЖЕНИЕ МЯЧА ПО ТАЙМЕРУ
 
 function startGame() {
-        var timerID = requestAnimationFrame(moveBall);//ввожу через переменную, чтобы иметь возможность отключить далее
+        var timerID = requestAnimationFrame(moveBallAndRackets);//ввожу через переменную, чтобы иметь возможность отключить далее
         
         //при нажатии кнопки Старт (даже при повторном) мяч находится в центре поля (возвращается в центр поля) 
         ballH.posX = BALL_POS_INIT_X;
         ballH.posY = BALL_POS_INIT_Y;
 
-        //выбор угла вылета мяча (произвольный, т.е. от 0 до 360 градусов)
-        ballH.angle = randomDiap(BALL_START_ANGLE_0,BALL_START_ANGLE_FIN);
-        console.log(ballH.angle);
+        //случайный выбор в какую сторону полетит мяч
+        var direction = randomDiap(1,2);
+
+        //выбор угла вылета мяча
+        if (direction === 1) {
+            ballH.angle = randomDiap(BALL_START_ANGLE_1,BALL_START_ANGLE_2);
+        }
+
+        else {
+            ballH.angle = randomDiap(BALL_START_ANGLE_3,BALL_START_ANGLE_4);
+        }
 
         //расчет проекции скорости мяча на соответствующие оси
         ballH.speedX = BALL_STEP*Math.sin(ballH.angle/180*Math.PI);
@@ -278,7 +296,7 @@ function startGame() {
 }
 
 //функция перемещения мяча, вызываемая по таймеру
-function moveBall() {
+function moveBallAndRackets() {
     //рассчет координаты x в процессе движения
     ballH.posX+=ballH.speedX;
 
@@ -334,9 +352,32 @@ function moveBall() {
         ballH.posY=0; 
     }
 
+    //осуществляю перемещение мяча
     ballH.update();
+
+    //движение ракеток (учитываю ограничения перемещения ракеток из-за конечной ширины игрового поля)
+    leftRacketH.posY+=leftRacketH.speedY;
+    rightRacketH.posY+=rightRacketH.speedY;
+
+    if (leftRacketH.posY<0) {
+       leftRacketH.posY=0;
+    }
+    else if (leftRacketH.posY>FIELD_HEIGHT-RACKET_LENGTH) {
+       leftRacketH.posY=FIELD_HEIGHT-RACKET_LENGTH;
+    }
+
+    if (rightRacketH.posY<0) {
+       rightRacketH.posY=0;
+    }
+    else if (rightRacketH.posY>FIELD_HEIGHT-RACKET_LENGTH) {
+       rightRacketH.posY=FIELD_HEIGHT-RACKET_LENGTH;
+    }
+
+    //осуществляю перемещение ракеток
+    leftRacketH.update();
+    rightRacketH.update();
     
-    var timerID = requestAnimationFrame(moveBall);
+    var timerID = requestAnimationFrame(moveBallAndRackets);
 }
 
 function randomDiap(n,m) {
