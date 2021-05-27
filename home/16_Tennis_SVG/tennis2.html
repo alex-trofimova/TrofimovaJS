@@ -4,28 +4,35 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tennis by DOM</title>
+    <title>Tennis by SVG</title>
 </head>
+<style>
+    #svgcont1 {
+        margin-left: 5px;
+        margin-top: 5px;
+    }
+    #svgcont2 {
+        margin-left: 5px;
+    }
+</style>
 <body>
-
-
+    <div class="container">
+        <svg version="1.1"
+             width="450" height="30"  
+             xmlns="http://www.w3.org/2000/svg"
+             id="svgcont1">
+        </svg>
+        <svg version="1.1"
+             width="450" height="300"  
+             xmlns="http://www.w3.org/2000/svg"
+             id="svgcont2">
+        </svg>
+    </div>
 <script>
 /*
-Реализовать игру «Теннис» методами DOM (проект TENNIS_DOM).
-Мяч прыгает по полю, слева и справа ракетки его отбивают.
-Размер поля НЕ резиновый, он должен быть задан на уровне JavaScript-кода константами.
-Запуск мяча — по кнопке «старт!», при этом мяч вылетает прямо из середины поля в случайном направлении 
-под случайным (в разумных пределах) углом.
-Управление левой ракеткой — клавишами Shift (вверх) и Ctrl (вниз),
-правой ракеткой — «стрелка вверх» и «стрелка вниз». Пока клавиша удерживается, 
-ракетка плавно движется; клавиша отпущена — ракетка останавливается.
-Если ракетка отбивает мяч — мяч должен отпрыгнуть от ракетки (а не долететь до стенки сквозь ракетку).
-Если мяч долетает до левой или правой стенки — засчитывается гол (ведётся подсчёт очков) и 
-до следующего нажатия «старт!» мяч остановлен возле самой стенки, прикоснувшись к ней.
-Никаких «волшебных констант» в коде не использовать — все константы вынести 
-в начало скрипта с чётким документированием.
+Реализовать игру «Теннис» (проект TENNIS_SVG) с использованием SVG.
+Описание — в домашнем задании про проект TENNIS_DOM.
 */
-
 //КОНСТАНТЫ
 
 //Состояние (статус) игры
@@ -33,23 +40,38 @@ GAME_START = 0;
 GAME_RUN = 1;
 GAME_BREAK = 2;
 
-//Игровое поле
-FIELD_BACKGROUND_COLOR = '#f0ee7e', //цветовой фон поля
-FIELD_BORDER_COLOR = 'black', //цвет границы
-FIELD_BORDER_WIDTH = 1,//ее толщина
-FIELD_WIDTH = 450,//длина поля
-FIELD_HEIGHT = 300;//ширина поля
-FIELD_MARGING_TOP = 10,//верхний отступ
+//Кнопка Старт
+START_BUTTON_WIDTH = 60, //длина кнопки
+START_BUTTON_HEIGHT = 20; //ширина кнопки
+//положение кнопки (верхний левый угол прямоугольника)
+START_BUTTON_POS_X = 0, 
+START_BUTTON_POS_Y = 5,
+START_BUTTON_FILL_COLOR = '#d9d9d3', //цвет заливки
+
+//Текст кнопки Старт
+START_TEXT_POS_X = 30,
+START_TEXT_POS_Y = 20,
+START_TEXT_FONT_FAMILY = 'Arial',
+START_TEXT_FONT_SIZE = 12,
 
 //Счет
-SCORE_WIDTH = 150, //длина поля для отображения счета
-SCORE_HEIGHT = 30; //ширина поля для отображения счета
 //положение поля для отображения счета
-SCORE_POS_X = FIELD_WIDTH/2-SCORE_WIDTH/2-60, 
-SCORE_POS_Y = -10,
+SCORE_POS_X = 225, 
+SCORE_POS_Y = 25,
 //параметры текста (счета)
-FONT_WEIGHT = 'bold',//жирность начертания
-FONT_SIZE = 32,//размер шрифта в пикселях  
+SCORE_FONT_WEIGHT = 'bold',//жирность начертания
+SCORE_FONT_SIZE = 32,//размер шрифта в пикселях
+SCORE_FONT_FAMILY = 'Arial',  
+
+//Игровое поле
+FIELD_FILL_COLOR = '#f0ee7e', //цветовой фон поля
+FIELD_STROKE_COLOR = 'black', //цвет границы
+FIELD_STROKE_WIDTH = 1,//ее толщина
+FIELD_WIDTH = 450,//длина поля
+FIELD_HEIGHT = 300,//ширина поля
+//положение поля (верхний левый угол прямоугольника)
+FIELD_POS_X = 0, 
+FIELD_POS_Y = 0,
 
 //Ракетки
 RACKET_LENGTH = 60,//длина ракетки (и левой, и правой)
@@ -61,7 +83,7 @@ RACKET_CENTER_POS_Y = RACKET_LENGTH/2,
 LEFT_RACKET_COLOR = '#09aa57',
 RIGHT_RACKET_COLOR = '#181497',
 //исходное положение ракеток
-LEFT_RACKET_POS_INIT_X = 0,
+LEFT_RACKET_POS_INIT_X = FIELD_POS_X,
 LEFT_RACKET_POS_INIT_Y = FIELD_HEIGHT*1/5,
 RIGHT_RACKET_POS_INIT_X = FIELD_WIDTH-RACKET_WIDTH,
 RIGHT_RACKET_POS_INIT_Y = FIELD_HEIGHT*3/5,
@@ -76,8 +98,8 @@ BALL_RADIUS = 10,//радиус
 BALL_DIAMETER = 2*BALL_RADIUS,//диаметр
 BALL_COLOR = '#f02136',//цвет 
 //исходное положение
-BALL_POS_INIT_X = FIELD_WIDTH/2 - BALL_RADIUS,
-BALL_POS_INIT_Y = FIELD_HEIGHT/2 - BALL_RADIUS,
+BALL_POS_INIT_X = FIELD_WIDTH/2,
+BALL_POS_INIT_Y = FIELD_HEIGHT/2,
 
 //Параметры движения мяча
 BALL_STEP = 1,//скорость равномерного перемещения
@@ -101,71 +123,82 @@ KEY_DOWN_ARROW = 40
 
 "use strict";
 //программно создаю графические элементы игры
+var svgCont1 = document.getElementById('svgcont1');
+var svgCont2 = document.getElementById('svgcont2');
 
-//игровое поле
-var gameField = document.createElement('div');
-gameField.style.backgroundColor = FIELD_BACKGROUND_COLOR;
-gameField.style.position = 'relative';
-gameField.style.border = 'solid '+FIELD_BORDER_WIDTH+'px '+ FIELD_BORDER_COLOR;
-gameField.style.width = FIELD_WIDTH +'px';
-gameField.style.height = FIELD_HEIGHT +'px';
-gameField.style.marginTop = FIELD_MARGING_TOP +'px';
-document.body.prepend(gameField);
+//группирую кнопку с ее текстом
+var startGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+startGroup.setAttribute('onclick', 'startGame()');
+svgCont1.append(startGroup);
+
+//кнопка Старт!
+var startButton = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+startButton.setAttribute('x', START_BUTTON_POS_X);
+startButton.setAttribute('y', START_BUTTON_POS_Y);
+startButton.setAttribute('width', START_BUTTON_WIDTH);
+startButton.setAttribute('height', START_BUTTON_HEIGHT);
+startButton.setAttribute('fill', START_BUTTON_FILL_COLOR);
+startGroup.append(startButton);
+
+//текст внутри
+var startText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+startText.setAttribute('x', START_TEXT_POS_X);
+startText.setAttribute('cursor', 'default');
+startText.setAttribute('y', START_TEXT_POS_Y);
+startText.setAttribute('text-anchor', 'middle');
+startText.setAttribute('style', 'font-family:'+ START_TEXT_FONT_FAMILY+'; font-size:'+ START_TEXT_FONT_SIZE+'px');
+startText.innerHTML = 'старт!';
+startGroup.append(startText);
 
 //счет
-var scoreField = document.createElement('div');
-scoreField.style.width = SCORE_WIDTH +'px';
-scoreField.style.height = SCORE_HEIGHT +'px';
-scoreField.style.display = 'inline-block';
-scoreField.style.marginLeft = SCORE_POS_X+'px';
-scoreField.style.marginBottom = SCORE_POS_Y+'px';
+var scoreField = document.createElementNS("http://www.w3.org/2000/svg", "text");
+scoreField.setAttribute('x', SCORE_POS_X);
+scoreField.setAttribute('y', SCORE_POS_Y);
+scoreField.setAttribute('text-anchor', 'middle');
+scoreField.setAttribute('style', 'font-weight:'+ SCORE_FONT_WEIGHT +'; font-family:'+ SCORE_FONT_FAMILY+'; font-size:'+ SCORE_FONT_SIZE+'px');
 scoreField.innerHTML = '0 : 0';
-scoreField.style.textAlign = 'center';
-scoreField.style.fontSize = FONT_SIZE+'px';
-scoreField.style.fontWeight = FONT_WEIGHT;
-document.body.prepend(scoreField);
+svgCont1.append(scoreField);
 
-//кнопку Старт!
-var startButton = document.createElement('input');
-startButton.type = 'button';
-startButton.value = 'старт!';
-startButton.setAttribute('onclick', 'startGame()');
-startButton.style.display = 'inline-block';
-document.body.prepend(startButton);
 
-//левую ракетку
-var leftRacket = document.createElement('div');
+//игровое поле
+var gameField = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+gameField.setAttribute('x', FIELD_POS_X);
+gameField.setAttribute('y', FIELD_POS_Y);
+gameField.setAttribute('width', FIELD_WIDTH);
+gameField.setAttribute('height', FIELD_HEIGHT);
+gameField.setAttribute('stroke', FIELD_STROKE_COLOR);
+gameField.setAttribute('stroke-width', FIELD_STROKE_WIDTH);
+gameField.setAttribute('fill', FIELD_FILL_COLOR);
+svgCont2.append(gameField);
+
+//левая ракетка
+var leftRacket = document.createElementNS("http://www.w3.org/2000/svg", "rect");
 leftRacket.setAttribute('id', 'leftRacket');
-leftRacket.style.backgroundColor = LEFT_RACKET_COLOR;
-leftRacket.style.position = 'absolute';
-leftRacket.style.width = RACKET_WIDTH +'px';
-leftRacket.style.height = RACKET_LENGTH +'px';
-leftRacket.style.left = LEFT_RACKET_POS_INIT_X +'px';
-leftRacket.style.top = LEFT_RACKET_POS_INIT_Y +'px';
-gameField.append(leftRacket);
+leftRacket.setAttribute('x', LEFT_RACKET_POS_INIT_X);
+leftRacket.setAttribute('y', LEFT_RACKET_POS_INIT_Y);
+leftRacket.setAttribute('width', RACKET_WIDTH);
+leftRacket.setAttribute('height', RACKET_LENGTH);
+leftRacket.setAttribute('fill', LEFT_RACKET_COLOR);
+svgCont2.append(leftRacket);
 
-//правую ракетку
-var rightRacket = document.createElement('div');
+//правая ракетка
+var rightRacket = document.createElementNS("http://www.w3.org/2000/svg", "rect");
 rightRacket.setAttribute('id', 'rightRacket');
-rightRacket.style.backgroundColor = RIGHT_RACKET_COLOR;
-rightRacket.style.position = 'absolute';
-rightRacket.style.width = RACKET_WIDTH +'px';
-rightRacket.style.height = RACKET_LENGTH +'px';
-rightRacket.style.left = RIGHT_RACKET_POS_INIT_X +'px';
-rightRacket.style.top = RIGHT_RACKET_POS_INIT_Y +'px';
-gameField.append(rightRacket);
+rightRacket.setAttribute('x', RIGHT_RACKET_POS_INIT_X);
+rightRacket.setAttribute('y', RIGHT_RACKET_POS_INIT_Y);
+rightRacket.setAttribute('width', RACKET_WIDTH);
+rightRacket.setAttribute('height', RACKET_LENGTH);
+rightRacket.setAttribute('fill', RIGHT_RACKET_COLOR);
+svgCont2.append(rightRacket);
 
 //мячик
-var ball = document.createElement('div');
+var ball = document.createElementNS("http://www.w3.org/2000/svg", "circle");
 ball.setAttribute('id', 'ball');
-ball.style.backgroundColor = BALL_COLOR;
-ball.style.position = 'absolute';
-ball.style.height = BALL_DIAMETER+'px';
-ball.style.width = BALL_DIAMETER+'px';
-ball.style.borderRadius = '50%';
-ball.style.left = BALL_POS_INIT_X +'px';
-ball.style.top = BALL_POS_INIT_Y  +'px';
-gameField.append(ball);
+ball.setAttribute('cx', BALL_POS_INIT_X);
+ball.setAttribute('cy', BALL_POS_INIT_Y);
+ball.setAttribute('r', BALL_RADIUS);
+ball.setAttribute('fill', BALL_COLOR);
+svgCont2.append(ball);
 
 //закончила отрисовку элементов
 
@@ -181,8 +214,8 @@ var ballH = {
 
         update : function() {
             var ballElem=document.getElementById('ball');
-            ballElem.style.left=Math.round(this.posX)+"px";
-            ballElem.style.top=Math.round(this.posY)+"px";
+            ball.setAttribute('cx', Math.round(this.posX));
+            ball.setAttribute('cy', Math.round(this.posY));
         }
     }
 
@@ -194,8 +227,8 @@ var leftRacketH = {
 
         update : function() {
             var leftRacketElem=document.getElementById('leftRacket');
-            leftRacketElem.style.left=Math.round(this.posX)+"px";
-            leftRacketElem.style.top=Math.round(this.posY)+"px";
+            leftRacketElem.setAttribute('x', Math.round(this.posX));
+            leftRacketElem.setAttribute('y', Math.round(this.posY));
         }
     }
 
@@ -207,8 +240,8 @@ var rightRacketH = {
 
         update : function() {
             var rightRacketElem=document.getElementById('rightRacket');
-            rightRacketElem.style.left=Math.round(this.posX)+"px";
-            rightRacketElem.style.top=Math.round(this.posY)+"px";
+            rightRacketElem.setAttribute('x', Math.round(this.posX));
+            rightRacketElem.setAttribute('y', Math.round(this.posY));
         }
     }
 
@@ -322,18 +355,18 @@ function moveBallAndRackets() {
 
     //при столкновении с правой или левой стеной координата x меняет знак 
     //отскок от правой стены
-    if (ballH.posX > FIELD_WIDTH-BALL_DIAMETER-RACKET_WIDTH) {
+    if (ballH.posX > FIELD_WIDTH-BALL_RADIUS-RACKET_WIDTH) {
         //если под мячом окажется ракетка:
-        if ((ballH.posY > rightRacketH.posY) && (ballH.posY < rightRacketH.posY+RACKET_LENGTH)) {
+        if ((ballH.posY-BALL_RADIUS > rightRacketH.posY) && (ballH.posY-BALL_RADIUS < rightRacketH.posY+RACKET_LENGTH)) {
             ballH.speedX =-ballH.speedX;
             //console.log('отбили');
             ballH.posX=FIELD_WIDTH-BALL_DIAMETER-RACKET_WIDTH; 
         }
         //и если нет
-        else if (ballH.posX > FIELD_WIDTH-BALL_DIAMETER) {
+        else if (ballH.posX > FIELD_WIDTH-BALL_RADIUS) {
             //console.log('мяч ударился о правую стенку');
             gameStatus = GAME_BREAK;
-            ballH.posX=FIELD_WIDTH-BALL_DIAMETER;
+            ballH.posX=FIELD_WIDTH-BALL_RADIUS;
             ballH.speedX = 0;
             ballH.speedY = 0;
             scoreLeft++; //добавляю очко сопернику
@@ -343,16 +376,16 @@ function moveBallAndRackets() {
     }       
     //аналогично
     //отскок от левой стены
-    if (ballH.posX < RACKET_WIDTH) {
-        if ((ballH.posY > leftRacketH.posY) && (ballH.posY < leftRacketH.posY+RACKET_LENGTH)) {
+    if (ballH.posX < RACKET_WIDTH+BALL_RADIUS) {
+        if ((ballH.posY-BALL_RADIUS > leftRacketH.posY) && (ballH.posY-BALL_RADIUS < leftRacketH.posY+RACKET_LENGTH)) {
             ballH.speedX =-ballH.speedX;
             //console.log('отбили');
-            ballH.posX=RACKET_WIDTH; 
+            ballH.posX=RACKET_WIDTH+BALL_RADIUS; 
         }
-        else if (ballH.posX < 0) {
+        else if (ballH.posX < BALL_RADIUS) {
             //console.log('мяч ударился о левую стенку');
             gameStatus = GAME_BREAK;
-            ballH.posX=0;
+            ballH.posX=BALL_RADIUS;
             ballH.speedX = 0;
             ballH.speedY = 0;
             scoreRight++;
@@ -363,15 +396,15 @@ function moveBallAndRackets() {
     ballH.posY-=ballH.speedY;
 
     //отскок от нижней стены
-    if (ballH.posY > FIELD_HEIGHT-BALL_DIAMETER) {
+    if (ballH.posY > FIELD_HEIGHT-BALL_RADIUS) {
         ballH.speedY = -ballH.speedY;
-        ballH.posY=FIELD_HEIGHT-BALL_DIAMETER; 
+        ballH.posY=FIELD_HEIGHT-BALL_RADIUS; 
     }
 
     //отскок от верхней стены
-    if (ballH.posY < 0 ) {
+    if (ballH.posY < BALL_RADIUS ) {
         ballH.speedY = -ballH.speedY;
-        ballH.posY=0; 
+        ballH.posY=BALL_RADIUS; 
     }
 
     //осуществляю перемещение мяча
@@ -408,9 +441,6 @@ function randomDiap(n,m) {
     )+n;
 }
 
-
-
-</script>
-
+</script>    
 </body>
 </html>
