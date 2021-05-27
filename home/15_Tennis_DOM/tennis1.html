@@ -28,6 +28,11 @@
 
 //КОНСТАНТЫ
 
+//Состояние (статус) игры
+GAME_START = 0;
+GAME_RUN = 1;
+GAME_BREAK = 2;
+
 //Игровое поле
 FIELD_BACKGROUND_COLOR = '#f0ee7e', //цветовой фон поля
 FIELD_BORDER_COLOR = 'black', //цвет границы
@@ -222,23 +227,23 @@ document.addEventListener("keyup", keyUpControl, false);
 //описываю функции: при нажатии одной из клавиш меняется Y-позиция ракетки
 function keyDownControl(e) {
     //левой
-    if(e.keyCode == KEY_SHIEFT) {
+    if(e.keyCode == KEY_SHIEFT && !(gameStatus == GAME_BREAK)) {
         leftRacketUp = true;
         leftRacketH.speedY = -LEFT_RACKET_SPEED_ACT;
     }
 
-    else if(e.keyCode == KEY_CTRL) {
+    else if(e.keyCode == KEY_CTRL && !(gameStatus == GAME_BREAK)) {
         leftRacketDown = true;
         leftRacketH.speedY = LEFT_RACKET_SPEED_ACT;
     }
 
     //и правой
-    else if(e.keyCode == KEY_UP_ARROW) {
+    else if(e.keyCode == KEY_UP_ARROW && !(gameStatus == GAME_BREAK)) {
         rightRacketUp = true;
         rightRacketH.speedY = -RIGHT_RACKET_SPEED_ACT;
     }
 
-    else if(e.keyCode == KEY_DOWN_ARROW) {
+    else if(e.keyCode == KEY_DOWN_ARROW && !(gameStatus == GAME_BREAK)) {
         rightRacketDown = true;
         rightRacketH.speedY = RIGHT_RACKET_SPEED_ACT;
     }
@@ -269,11 +274,25 @@ function keyUpControl(e) {
     var scoreLeft = 0;
     var scoreRight = 0;
 
-//ПО НАЖАТИИ КНОПКИ ЗАПУСК ТАЙМЕРА И ДВИЖЕНИЕ МЯЧА ПО ТАЙМЕРУ
+//переменная, отражающая состояние (статус) игры
+    var gameStatus;
 
+//ПРИ ЗАГРУЗКЕ СТРАНИЦЫ ЗАПУСКАЮ ТАЙМЕР
+window.onload = function() {
+    console.log('Страница загружена');
+    console.log('Таймер запущен');
+    requestAnimationFrame(moveBallAndRackets);
+    gameStatus = GAME_START;
+    ballH.speedX = 0;
+    ballH.speedY = 0;
+}
+
+//ПО НАЖАТИИ КНОПКИ НАЧИНАЕТСЯ ДВИЖЕНИЕ МЯЧА ПО ТАЙМЕРУ
 function startGame() {
-        var timerID = requestAnimationFrame(moveBallAndRackets);//ввожу через переменную, чтобы иметь возможность отключить далее
-        
+     //кнопка Старт (точнее ее фукнция) срабатывает либо в начале игры, либо после гола    
+    if (gameStatus == GAME_START || gameStatus == GAME_BREAK) {
+        gameStatus = GAME_RUN;
+            
         //при нажатии кнопки Старт (даже при повторном) мяч находится в центре поля (возвращается в центр поля) 
         ballH.posX = BALL_POS_INIT_X;
         ballH.posY = BALL_POS_INIT_Y;
@@ -293,6 +312,7 @@ function startGame() {
         //расчет проекции скорости мяча на соответствующие оси
         ballH.speedX = BALL_STEP*Math.sin(ballH.angle/180*Math.PI);
         ballH.speedY = BALL_STEP*Math.cos(ballH.angle/180*Math.PI);
+    }        
 }
 
 //функция перемещения мяча, вызываемая по таймеру
@@ -312,14 +332,12 @@ function moveBallAndRackets() {
         //и если нет
         else if (ballH.posX > FIELD_WIDTH-BALL_DIAMETER) {
             //console.log('мяч ударился о правую стенку');
+            gameStatus = GAME_BREAK;
             ballH.posX=FIELD_WIDTH-BALL_DIAMETER;
+            ballH.speedX = 0;
+            ballH.speedY = 0;
             scoreLeft++; //добавляю очко сопернику
             scoreField.innerHTML = scoreLeft+' : '+scoreRight; //вывожу счет
-            //останавливаю ракетки
-            rightRacketH.speedY = RIGHT_RACKET_SPEED_INIT;
-            leftRacketH.speedY = LEFT_RACKET_SPEED_INIT;
-            cancelAnimationFrame(timerID); //выключаю таймер
-            return; //просто останавливаю функцию
         }
         
     }       
@@ -333,13 +351,12 @@ function moveBallAndRackets() {
         }
         else if (ballH.posX < 0) {
             //console.log('мяч ударился о левую стенку');
+            gameStatus = GAME_BREAK;
             ballH.posX=0;
+            ballH.speedX = 0;
+            ballH.speedY = 0;
             scoreRight++;
             scoreField.innerHTML = scoreLeft+' : '+scoreRight;
-            rightRacketH.speedY = RIGHT_RACKET_SPEED_INIT;
-            leftRacketH.speedY = LEFT_RACKET_SPEED_INIT;
-            cancelAnimationFrame(timerID);
-            return;
         }
     } 
     
