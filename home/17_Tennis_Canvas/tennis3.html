@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tennis by Canvas</title>
+</head>
+<style>
+    .container {
+        margin-bottom: 5px;
+    }
+    input {
+        display: inline-block; 
+    }
+
+    #score {
+        display: inline-block;
+        margin-left: 120px;
+        font-size: 32px;
+        font-weight: bold;
+    }
+</style>
+<body>
+    <div class="container">
+        <input type="button" value="старт!" onclick ="startGame()">
+        <div id="score">0 : 0</div>
+    </div>    
+    <canvas id='TennisCanvas' width="450" height="300"></canvas>
+<script>
+/*
+Реализовать игру «Теннис» (проект TENNIS_CANVAS) с использованием Canvas.
+Описание — в домашнем задании про проект TENNIS_DOM.
+*/
+//КОНСТАНТЫ
+
+//Состояние (статус) игры
+GAME_START = 0;
+GAME_RUN = 1;
+GAME_BREAK = 2;
+
+//Кнопка Старт
+START_BUTTON_WIDTH = 60, //длина кнопки
+START_BUTTON_HEIGHT = 20; //ширина кнопки
+//положение кнопки (верхний левый угол прямоугольника)
+START_BUTTON_POS_X = 0, 
+START_BUTTON_POS_Y = 5,
+START_BUTTON_FILL_COLOR = '#d9d9d3', //цвет заливки
+
+//Текст кнопки Старт
+START_TEXT_POS_X = 30,
+START_TEXT_POS_Y = 20,
+START_TEXT_FONT_FAMILY = 'Arial',
+START_TEXT_FONT_SIZE = 12,
+
+//Счет
+//положение поля для отображения счета
+SCORE_POS_X = 225, 
+SCORE_POS_Y = 25,
+//параметры текста (счета)
+SCORE_FONT_WEIGHT = 'bold',//жирность начертания
+SCORE_FONT_SIZE = 32,//размер шрифта в пикселях
+SCORE_FONT_FAMILY = 'Arial',  
+
+//Игровое поле
+FIELD_FILL_COLOR = '#f0ee7e', //цветовой фон поля
+FIELD_STROKE_COLOR = 'black', //цвет границы
+FIELD_STROKE_WIDTH = 1,//ее толщина
+FIELD_WIDTH = 450,//длина поля
+FIELD_HEIGHT = 300,//ширина поля
+//положение поля (верхний левый угол прямоугольника)
+FIELD_POS_X = 0, 
+FIELD_POS_Y = 0,
+
+//Ракетки
+RACKET_LENGTH = 60,//длина ракетки (и левой, и правой)
+RACKET_WIDTH = 10, //ширина ракетки (и левой, и правой)
+//положение центра ракетки
+RACKET_CENTER_POS_X = RACKET_WIDTH/2,
+RACKET_CENTER_POS_Y = RACKET_LENGTH/2,
+//цвет ракеток
+LEFT_RACKET_COLOR = '#09aa57',
+RIGHT_RACKET_COLOR = '#181497',
+//исходное положение ракеток
+LEFT_RACKET_POS_INIT_X = FIELD_POS_X,
+LEFT_RACKET_POS_INIT_Y = FIELD_HEIGHT*1/5,
+RIGHT_RACKET_POS_INIT_X = FIELD_WIDTH-RACKET_WIDTH,
+RIGHT_RACKET_POS_INIT_Y = FIELD_HEIGHT*3/5,
+//скорости перемещения ракеток (по вертикали)
+LEFT_RACKET_SPEED_INIT = 0,
+RIGHT_RACKET_SPEED_INIT = 0,
+LEFT_RACKET_SPEED_ACT = 1,
+RIGHT_RACKET_SPEED_ACT = 1,
+
+//Мячик
+BALL_RADIUS = 10,//радиус
+BALL_DIAMETER = 2*BALL_RADIUS,//диаметр
+BALL_COLOR = '#f02136',//цвет 
+//исходное положение
+BALL_POS_INIT_X = FIELD_WIDTH/2,
+BALL_POS_INIT_Y = FIELD_HEIGHT/2,
+
+//Параметры движения мяча
+BALL_STEP = 1,//скорость равномерного перемещения
+
+BALL_START_ANGLE_0 = 0,
+//диапазон углов вылета
+//справа
+BALL_START_ANGLE_1 = Math.atan(FIELD_HEIGHT/FIELD_WIDTH)*180/Math.PI, //в градусах
+BALL_START_ANGLE_2 = BALL_START_ANGLE_1+90,
+//слева
+BALL_START_ANGLE_3 = BALL_START_ANGLE_2+90,
+BALL_START_ANGLE_4 = BALL_START_ANGLE_3+90,
+
+
+//Коды клавиш
+KEY_SHIEFT = 16,
+KEY_CTRL = 17,
+KEY_UP_ARROW = 38,
+KEY_DOWN_ARROW = 40
+;
+
+"use strict";
+//программно создаю графические элементы игры
+
+var cvs = document.getElementById('TennisCanvas');
+var context = cvs.getContext('2d');
+
+//создаю хэши для элементов и в них в методе update отрисовываю их
+//для игрового поля
+var gameFieldH = {
+    posX : FIELD_POS_X,
+    posY : FIELD_POS_Y,
+    width : FIELD_WIDTH,
+    height : FIELD_HEIGHT,
+
+    draw : function() {
+        context.strokeStyle = FIELD_STROKE_COLOR;
+        context.fillStyle = FIELD_FILL_COLOR;
+        context.beginPath();
+        context.rect(this.posX, this.posY, this.width, this.height);
+        context.closePath();
+        context.fill();
+        context.stroke();
+    }    
+}
+
+//для мячика
+var ballH = {
+        posX : BALL_POS_INIT_X,
+        posY : BALL_POS_INIT_Y,
+        radius : BALL_RADIUS,
+        angle : BALL_START_ANGLE_0,
+        speedX : BALL_STEP,
+        speedY : BALL_STEP,
+
+        draw : function() {
+            context.fillStyle = BALL_COLOR;
+            context.beginPath();
+            context.arc(this.posX, this.posY, this.radius, 0, Math.PI*2, false);
+            context.closePath();
+            context.fill();
+        }
+    }
+
+//для левой ракетки
+var leftRacketH = {
+        posX : LEFT_RACKET_POS_INIT_X,
+        posY : LEFT_RACKET_POS_INIT_Y,
+        width : RACKET_WIDTH,
+        height : RACKET_LENGTH,
+        speedY : LEFT_RACKET_SPEED_INIT,
+
+        draw : function() {
+            context.fillStyle = LEFT_RACKET_COLOR;
+            context.fillRect(this.posX, this.posY, this.width, this.height);
+        }
+    }
+
+//для правой ракетки
+var rightRacketH = {
+        posX : RIGHT_RACKET_POS_INIT_X,
+        posY : RIGHT_RACKET_POS_INIT_Y,
+        width : RACKET_WIDTH,
+        height : RACKET_LENGTH,
+        speedY : RIGHT_RACKET_SPEED_INIT,
+
+        draw : function() {
+            context.fillStyle = RIGHT_RACKET_COLOR;
+            context.fillRect(this.posX, this.posY, this.width, this.height);
+        }
+    }
+
+gameFieldH.draw();    
+ballH.draw();
+leftRacketH.draw();
+rightRacketH.draw();
+
+//УПРАВЛЕНИЕ РАКЕТКОЙ
+//переменные для клавиш управления
+//по умолчанию клавиши не нажаты, поэтому false
+var leftRacketUp = false;
+var leftRacketDown = false;
+var rightRacketUp = false;
+var rightRacketDown = false;
+
+//подписываюсь на события клавиатуры
+document.addEventListener("keydown", keyDownControl, false);
+document.addEventListener("keyup", keyUpControl, false);
+
+//описываю функции: при нажатии одной из клавиш меняется Y-позиция ракетки
+function keyDownControl(e) {
+    //левой
+    if(e.keyCode == KEY_SHIEFT && !(gameStatus == GAME_BREAK)) {
+        leftRacketUp = true;
+        leftRacketH.speedY = -LEFT_RACKET_SPEED_ACT;
+    }
+
+    else if(e.keyCode == KEY_CTRL && !(gameStatus == GAME_BREAK)) {
+        leftRacketDown = true;
+        leftRacketH.speedY = LEFT_RACKET_SPEED_ACT;
+    }
+
+    //и правой
+    else if(e.keyCode == KEY_UP_ARROW && !(gameStatus == GAME_BREAK)) {
+        rightRacketUp = true;
+        rightRacketH.speedY = -RIGHT_RACKET_SPEED_ACT;
+    }
+
+    else if(e.keyCode == KEY_DOWN_ARROW && !(gameStatus == GAME_BREAK)) {
+        rightRacketDown = true;
+        rightRacketH.speedY = RIGHT_RACKET_SPEED_ACT;
+    }
+}
+
+function keyUpControl(e) {
+    if(e.keyCode == KEY_SHIEFT) {
+        leftRacketUp = false;
+        leftRacketH.speedY = LEFT_RACKET_SPEED_INIT;
+    }
+
+    else if(e.keyCode == KEY_CTRL) {
+        leftRacketDown = false;
+        leftRacketH.speedY = LEFT_RACKET_SPEED_INIT;
+    }
+
+    else if(e.keyCode == KEY_UP_ARROW) {
+        rightRacketUp = false;
+        rightRacketH.speedY = RIGHT_RACKET_SPEED_INIT;
+    }
+
+    else if(e.keyCode == KEY_DOWN_ARROW) {
+        rightRacketDown = false;
+        rightRacketH.speedY = RIGHT_RACKET_SPEED_INIT;
+    }
+}
+
+//переменная для обращения к счету
+var scoreField = document.getElementById('score');
+
+//переменные для ведения счета
+    var scoreLeft = 0;
+    var scoreRight = 0;
+
+//переменная, отражающая состояние (статус) игры
+    var gameStatus;
+
+
+//ПРИ ЗАГРУЗКЕ СТРАНИЦЫ ЗАПУСКАЮ ТАЙМЕР
+window.onload = function() {
+    console.log('Страница загружена');
+    console.log('Таймер запущен');
+    requestAnimationFrame(moveBallAndRackets);
+    gameStatus = GAME_START;
+    ballH.speedX = 0;
+    ballH.speedY = 0;
+}
+
+//ПО НАЖАТИИ КНОПКИ НАЧИНАЕТСЯ ДВИЖЕНИЕ МЯЧА ПО ТАЙМЕРУ
+function startGame() {
+     //кнопка Старт (точнее ее фукнция) срабатывает либо в начале игры, либо после гола    
+    if (gameStatus == GAME_START || gameStatus == GAME_BREAK) {
+        gameStatus = GAME_RUN;
+            
+        //при нажатии кнопки Старт (даже при повторном) мяч находится в центре поля (возвращается в центр поля) 
+        ballH.posX = BALL_POS_INIT_X;
+        ballH.posY = BALL_POS_INIT_Y;
+
+        //случайный выбор в какую сторону полетит мяч
+        var direction = randomDiap(1,2);
+
+        //выбор угла вылета мяча
+        if (direction === 1) {
+            ballH.angle = randomDiap(BALL_START_ANGLE_1,BALL_START_ANGLE_2);
+        }
+
+        else {
+            ballH.angle = randomDiap(BALL_START_ANGLE_3,BALL_START_ANGLE_4);
+        }
+
+        //расчет проекции скорости мяча на соответствующие оси
+        ballH.speedX = BALL_STEP*Math.sin(ballH.angle/180*Math.PI);
+        ballH.speedY = BALL_STEP*Math.cos(ballH.angle/180*Math.PI);
+    }        
+}
+
+//функция перемещения мяча, вызываемая по таймеру
+function moveBallAndRackets() {
+    
+    //рисую чистое игровое поле
+    gameFieldH.draw(); 
+
+    //рассчет координаты x в процессе движения
+    ballH.posX+=ballH.speedX;
+
+    //при столкновении с правой или левой стеной координата x меняет знак 
+    //отскок от правой стены
+    if (ballH.posX > FIELD_WIDTH-BALL_RADIUS-RACKET_WIDTH) {
+        //если под мячом окажется ракетка:
+        if ((ballH.posY-BALL_RADIUS > rightRacketH.posY) && (ballH.posY-BALL_RADIUS < rightRacketH.posY+RACKET_LENGTH)) {
+            ballH.speedX =-ballH.speedX;
+            //console.log('отбили');
+            ballH.posX=FIELD_WIDTH-BALL_RADIUS-RACKET_WIDTH; 
+        }
+        //и если нет
+        else if (ballH.posX > FIELD_WIDTH-BALL_RADIUS) {
+            //console.log('мяч ударился о правую стенку');
+            gameStatus = GAME_BREAK;
+            ballH.posX=FIELD_WIDTH-BALL_RADIUS;
+            ballH.speedX = 0;
+            ballH.speedY = 0;
+            scoreLeft++; //добавляю очко сопернику
+            scoreField.innerHTML = scoreLeft+' : '+scoreRight; //вывожу счет
+        }
+        
+    }       
+    //аналогично
+    //отскок от левой стены
+    if (ballH.posX < RACKET_WIDTH+BALL_RADIUS) {
+        if ((ballH.posY-BALL_RADIUS > leftRacketH.posY) && (ballH.posY-BALL_RADIUS < leftRacketH.posY+RACKET_LENGTH)) {
+            ballH.speedX =-ballH.speedX;
+            //console.log('отбили');
+            ballH.posX=RACKET_WIDTH+BALL_RADIUS; 
+        }
+        else if (ballH.posX < BALL_RADIUS) {
+            //console.log('мяч ударился о левую стенку');
+            gameStatus = GAME_BREAK;
+            ballH.posX=BALL_RADIUS;
+            ballH.speedX = 0;
+            ballH.speedY = 0;
+            scoreRight++;
+            scoreField.innerHTML = scoreLeft+' : '+scoreRight;
+        }
+    } 
+    
+    ballH.posY-=ballH.speedY;
+
+    //отскок от нижней стены
+    if (ballH.posY > FIELD_HEIGHT-BALL_RADIUS) {
+        ballH.speedY = -ballH.speedY;
+        ballH.posY=FIELD_HEIGHT-BALL_RADIUS; 
+    }
+
+    //отскок от верхней стены
+    if (ballH.posY < BALL_RADIUS ) {
+        ballH.speedY = -ballH.speedY;
+        ballH.posY=BALL_RADIUS; 
+    }
+
+    //осуществляю перемещение мяча, т.е. его перерисовку
+    ballH.draw();
+
+    //движение ракеток (учитываю ограничения перемещения ракеток из-за конечной ширины игрового поля)
+    leftRacketH.posY+=leftRacketH.speedY;
+    rightRacketH.posY+=rightRacketH.speedY;
+
+    if (leftRacketH.posY<0) {
+       leftRacketH.posY=0;
+    }
+    else if (leftRacketH.posY>FIELD_HEIGHT-RACKET_LENGTH) {
+       leftRacketH.posY=FIELD_HEIGHT-RACKET_LENGTH;
+    }
+
+    if (rightRacketH.posY<0) {
+       rightRacketH.posY=0;
+    }
+    else if (rightRacketH.posY>FIELD_HEIGHT-RACKET_LENGTH) {
+       rightRacketH.posY=FIELD_HEIGHT-RACKET_LENGTH;
+    }
+
+    //осуществляю перемещение ракеток
+    leftRacketH.draw();
+    rightRacketH.draw();
+    
+    var timerID = requestAnimationFrame(moveBallAndRackets);
+}
+
+function randomDiap(n,m) {
+    return Math.floor(
+    Math.random()*(m-n+1)
+    )+n;
+}
+
+
+</script>
+ 
+</body>
+</html>
