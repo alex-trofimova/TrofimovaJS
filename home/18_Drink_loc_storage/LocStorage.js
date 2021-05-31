@@ -4,21 +4,20 @@ function LocStorage(objType) {
 
     self.type = objType; //свойство класса для выбора типа объекта (напиток или блюдо)
 
-    self.hash={};//хэш класа для хранения хэшей с информацией
-
-    self.store=function (){
-        var keyH = JSON.stringify(objType);
-        var valueH = JSON.stringify(self.hash);
-        localStorage.setItem(keyH, valueH);        
-    }
-    
+    //создаю хэш в конструкторе (как было раньше)
+    //если в локальном хранилище ничего нет, то он пустой
+    if (localStorage.getItem(self.type) == null) {
+         self.hash = {}; 
+        }
+    //если что-то есть, то заполняю этими данными
+    else self.hash = JSON.parse(localStorage.getItem(self.type));
+     
     self.addValue=function(key,value){
         self.hash[key]=value;
-        self.store();
-    };
+        localStorage.setItem(self.type, JSON.stringify(self.hash));
+    }
 
     self.getValue=function(key){
-        
         return self.hash[key];
     };
 
