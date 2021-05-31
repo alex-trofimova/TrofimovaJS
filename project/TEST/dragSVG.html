@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drag SVG</title>
+</head>
+<body>
+<svg version="1.1"
+     width="800" height="300"  
+     xmlns="http://www.w3.org/2000/svg"
+     id="svgcont">
+     <circle cx="200" cy="200" r="100" fill="#fcca66" id="part" cursor = 'default'/>
+</svg>    
+</body>
+<script>
+var part = document.getElementById('part');
+part.onmousedown = objMouseStart;
+
+var leftPos = parseFloat(part.getAttribute('cx'));
+var topPos = parseFloat(part.getAttribute('cy'));
+
+part.setAttribute('cx', leftPos);
+part.setAttribute('cy', topPos);
+
+console.log(leftPos);
+console.log(typeof(leftPos));
+console.log(topPos);
+
+var pressShiftLeft = 0;
+var pressShiftTop = 0;
+
+var draggedPart=null;
+
+function objMouseStart(EO) {
+    EO=EO||window.event;
+
+    EO.preventDefault();
+
+    draggedPart=EO.target;
+
+    part.setAttribute('cursor', 'pointer');
+
+    pressShiftLeft = EO.clientX - leftPos;
+    pressShiftTop = EO.clientY - topPos;
+
+    document.onmousemove = objMouseMove;
+
+    draggedPart.onmouseup = objMouseEnd;
+}
+
+function objMouseEnd(EO) {
+    EO=EO||window.event;
+
+    part.setAttribute('cursor', 'default');
+    document.onmousemove = null;
+    draggedPart.onmouseup = null;
+    draggedPart = null;
+    EO.preventDefault();
+}
+
+function objMouseMove(EO) {
+    EO=EO||window.event;
+
+    EO.preventDefault();
+
+    part.setAttribute('cx', EO.pageX - pressShiftLeft);
+    part.setAttribute('cy', EO.pageY - pressShiftTop);
+}
+</script>
+</html>
