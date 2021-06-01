@@ -14,6 +14,7 @@ function LocStorage(objType) {
      
     self.addValue=function(key,value){
         self.hash[key]=value;
+        //изменился хэш - добавляю данные в localStorage
         localStorage.setItem(self.type, JSON.stringify(self.hash));
     }
 
@@ -24,6 +25,8 @@ function LocStorage(objType) {
     self.deleteValue=function(key) {
         if (key in self.hash) {
             delete self.hash[key];
+            //снова изменился хэш - опять добавляю данные в localStorage
+            localStorage.setItem(self.type, JSON.stringify(self.hash));
             return true;
         }
         else {
@@ -34,5 +37,4 @@ function LocStorage(objType) {
     self.getKeys=function(){
         return Object.keys(self.hash);
     }
-
 }
