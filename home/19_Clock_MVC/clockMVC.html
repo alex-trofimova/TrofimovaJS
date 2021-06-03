@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clock by MVC</title>
+</head>
+<style>
+    .container {
+        display: flex;
+        flex-flow: wrap;
+        justify-content: space-around;
+    }
+
+    .clock {
+        width: 32%;
+        height: 300px;
+        margin-bottom: 10px;
+    }
+    .clock-container {
+        margin: 10px 0 0 40px;
+    }
+</style>
+<body>
+    <div class="container">
+        <div class="clock" id="clockDOM1">
+            <input type="button" class= "stop" value="стоп">
+            <input type="button" class= "start" value="старт">
+            <span class="city-timezone"></span>
+            <div class="clock-container"></div>
+        </div>
+        <div class="clock" id="clockSVG1">
+            <input type="button" class= "stop" value="стоп">
+            <input type="button" class= "start" value="старт">
+            <span class="city-timezone"></span>
+            <div class="clock-container"></div>
+        </div>
+        <div class="clock" id="clockCanvas1">
+            <input type="button" class= "stop" value="стоп">
+            <input type="button" class= "start" value="старт">
+            <span class="city-timezone"></span>
+            <div class="clock-container"></div>
+        </div>
+        <div class="clock" id="clockDOM2">
+            <input type="button" class= "stop" value="стоп">
+            <input type="button" class= "start" value="старт">
+            <span class="city-timezone"></span>
+            <div class="clock-container"></div>
+        </div>
+        <div class="clock" id="clockSVG2">
+            <input type="button" class= "stop" value="стоп">
+            <input type="button" class= "start" value="старт">
+            <span class="city-timezone"></span>
+
+            <div class="clock-container"></div>
+        </div>
+        <div class="clock" id="clockCanvas2">
+            <input type="button" class= "stop" value="стоп">
+            <input type="button" class= "start" value="старт">
+            <span class="city-timezone"></span>
+            <div class="clock-container"></div>
+        </div>
+    </div>
+<script src="js/Clock.js"></script>
+<script src="js/ClockViewDOM.js"></script>
+<script src="js/ClockViewSVG.js"></script>
+<script src="js/ClockViewCanvas.js"></script>
+<script src="js/ClockControllerButtons.js"></script>
+<script>
+/*
+Создать проект CLOCK. Реализовать согласно концепции активного MVC:
+Model — часы, класс Clock в файле Clock.js, могут идти (отображая актуальное время) либо стоять (отображая время на момент остановки);
+View — реализовать три варианта:
+класс ClockViewDOM в файле ClockViewDOM.js
+для отображения часов средствами HTML/CSS/DOM;
+класс ClockViewSVG в файле ClockViewSVG.js
+для отображения средствами SVG и
+класс ClockViewCanvas в файле ClockViewCanvas.js
+для отображения средствами Canvas;
+Controller — реализовать вариант старта/остановки часов кнопками,
+класс ClockControllerButtons в файле ClockControllerButtons.js.
+Создать шесть объектов часов, для двух установить отображение в DOM, ещё для двух — в SVG, и ещё для двух — в Canvas, расположить их на одной странице.
+Каждые часы должны отображать текущее время в своём часовом поясе.
+Все шесть часов должны независимо управляться своими кнопками «стоп» и «старт» (при загрузке страницы часы должны идти; по нажатию кнопки «стоп» 
+стрелки должны останавливаться; по нажатию «старт» — переводиться на текущее время и снова идти).
+*/
+"use strict";
+
+//создаю все компоненты MVC (6 объектов моделей, 6 объектов представлений ...)
+var clockDOM1 = new Clock('Нью-Йорк');
+var clockSVG1 = new Clock('Лондон');
+var clockCanvas1 = new Clock('Берлин');
+var clockDOM2 = new Clock('Минск');
+var clockSVG2 = new Clock('Токио');
+var clockCanvas2 = new Clock('Владивосток');
+
+var viewDOM1 = new ClockViewDOM();
+var viewSVG1 = new ClockViewSVG();
+var viewCanvas1 = new ClockViewCanvas();
+var viewDOM2 = new ClockViewDOM();
+var viewSVG2 = new ClockViewSVG();
+var viewCanvas2 = new ClockViewCanvas();
+
+var controllerDOM1 = new ClockControllerButtons();
+var controllerSVG1 = new ClockControllerButtons();
+var controllerCanvas1 = new ClockControllerButtons();
+var controllerDOM2 = new ClockControllerButtons();
+var controllerSVG2 = new ClockControllerButtons();
+var controllerCanvas2 = new ClockControllerButtons();
+
+//выбираю элементы, в которых компонентам нужно будет работать
+var containerElemDOM1=document.getElementById('clockDOM1');
+var containerElemSVG1=document.getElementById('clockSVG1');
+var containerElemCanvas1=document.getElementById('clockCanvas1');
+var containerElemDOM2=document.getElementById('clockDOM2');
+var containerElemSVG2=document.getElementById('clockSVG2');
+var containerElemCanvas2=document.getElementById('clockCanvas2');
+
+
+//связываю компоненты
+clockDOM1.start(viewDOM1);
+clockSVG1.start(viewSVG1);
+clockCanvas1.start(viewCanvas1);
+clockDOM2.start(viewDOM2);
+clockSVG2.start(viewSVG2);
+clockCanvas2.start(viewCanvas2);
+
+viewDOM1.start(clockDOM1, containerElemDOM1);
+viewSVG1.start(clockSVG1, containerElemSVG1);
+viewCanvas1.start(clockCanvas1, containerElemCanvas1);
+viewDOM2.start(clockDOM2, containerElemDOM2);
+viewSVG2.start(clockSVG2, containerElemSVG2);
+viewCanvas2.start(clockCanvas2, containerElemCanvas2);
+
+controllerDOM1.start(clockDOM1, containerElemDOM1);
+controllerSVG1.start(clockSVG1, containerElemSVG1);
+controllerCanvas1.start(clockCanvas1, containerElemCanvas1);
+controllerDOM2.start(clockDOM2, containerElemDOM2);
+controllerSVG2.start(clockSVG2, containerElemSVG2);
+controllerCanvas2.start(clockCanvas2, containerElemCanvas2);
+
+//инициализирую первичное отображение Model во View, в том и числе и при перезагрузке страницы
+window.onload = function() {
+    console.log('Страница загружена');
+    clockDOM1.showTimeAtOnce();
+    clockSVG1.showTimeAtOnce();
+    clockCanvas1.showTimeAtOnce();
+    clockDOM2.showTimeAtOnce();
+    clockSVG2.showTimeAtOnce();
+    clockCanvas2.showTimeAtOnce();
+}
+</script>   
+</body>
+</html>
