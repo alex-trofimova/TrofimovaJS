@@ -20,6 +20,8 @@ function Clock (city) {
 
     var myView = null;
 
+    self.status = true;
+
     self.city = city;
 
     //параметры, используемые для отображения времени в зависимости от часового пояса (точнее города)
@@ -83,27 +85,34 @@ function Clock (city) {
 
     //инициализация (потом вызову в основном скрипте)
     self.start=function(view) {
+        self.status = true;
         myView = view;        
     }
 
     //обновление представления (View)
     self.updateView=function() {
         if (myView) {
-           myView.update(); 
+           
+            myView.update(); 
         }    
     };
 
     //запуск часов
     self.run=function() {
-       runTime();
-       console.log('запустить часы');
-       self.timer = setInterval(runTime,1000);
+        if (!self.status) {
+            self.status = true;
+            runTime();
+            console.log('часы в ' + self.city + 'е запущены по кнопке');
+            self.timer = setInterval(runTime,1000); 
+        }
+        else return;
     }
 
     //функция для корректного перезапуска часов при обновлении страницы (чтобы не через секунду, а сразу - AtOnce)
     self.showTimeAtOnce = function(){
         runTime();
-        self.run();
+        console.log('страницу открыли или обновили. Время пошло');
+        self.timer = setInterval(runTime,1000); 
     }
 
     //функция таймера (в ней нам нужны часы, минуты и секунды, а также само время в цифровом формате)
@@ -125,8 +134,12 @@ function Clock (city) {
 
     //остановка часов
     self.stop=function() {
-        console.log('остановить часы');
-        clearInterval(self.timer);
+        if (self.status) {
+            console.log('часы в ' + self.city + 'е остановлены по кнопке');
+            clearInterval(self.timer);
+            self.status = false; 
+        }
+        else return;
     }
     
 }
