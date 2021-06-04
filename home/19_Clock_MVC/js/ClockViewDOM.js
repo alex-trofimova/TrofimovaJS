@@ -25,6 +25,18 @@
       TEXT_COLOR = 'black',
       FONT_SIZE = 16,
 
+        //ЭЛЕКТРОННЫЕ ЧАСЫ
+        DIGITAL_CLOCK_POS_X = 0.75*BIG_CIRCLE_RADIUS, //положение по горизонтали 
+        DIGITAL_CLOCK_POS_Y = 0.5*BIG_CIRCLE_RADIUS, //положение по высоте, на четверти круга, поэтому 0.5 радиуса
+        DIGITAL_CLOCK_POS_X_SVG = BIG_CIRCLE_RADIUS, //положение по горизонтали 
+        DIGITAL_CLOCK_POS_Y_SVG = 0.6*BIG_CIRCLE_RADIUS, //положение по высоте, на четверти круга, поэтому 0.5 радиуса
+
+        //параметры текста цифр электронных часов
+        DIG_FONT_FAMILY = 'Arial',//шрифт
+        DIG_FONT_WEIGHT = 'bold',//жирность начертания
+        DIG_FONT_SIZE = 18,//размер шрифта в пикселях  
+
+
       //СТРЕЛКИ
       //часовая
       HOUR_LENGTH = BIG_CIRCLE_RADIUS*0.5, //длина стрелки в процентах (=50%) от размеров циферблата
@@ -173,6 +185,21 @@ function ClockViewDOM(){
 
         bigCircle.append(secondArrow);
 
+
+        //ЭЛЕКТРОННЫЕ ЧАСЫ
+        //в формате чч:мм:сс
+        var digitalClock = document.createElement('div');
+        digitalClock.className = 'digitalClock';
+        digitalClock.style.position = 'absolute';
+        digitalClock.style.left = DIGITAL_CLOCK_POS_X+'px';
+        digitalClock.style.top = DIGITAL_CLOCK_POS_Y+'px';
+        digitalClock.style.textAlign = 'center';
+        digitalClock.style.fontFamily = DIG_FONT_FAMILY;
+        digitalClock.style.fontSize = DIG_FONT_SIZE+'px';
+        digitalClock.style.fontWeight = DIG_FONT_WEIGHT;
+
+        bigCircle.append(digitalClock);
+
         
         //ГОРОД И ЧАСОВОЙ ПОЯС
         //нахожу соответствующий оберточный для часов div внутри рабочего элемента DOM (т.е. myField)
@@ -188,5 +215,7 @@ function ClockViewDOM(){
         minuteArrow.style.transform = "rotate("+myModel.minStep+"deg)";
         var hourArrow = myField.querySelector('.hourArrow');
         hourArrow.style.transform = "rotate("+myModel.hourStep+"deg)";
+        var digitalClock = myField.querySelector('.digitalClock');
+        digitalClock.innerHTML = myModel.currTimeStr;
     }
 }

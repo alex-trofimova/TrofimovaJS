@@ -25,5 +25,6 @@ function ClockControllerButtons(){
 
     self.startTimer=function() {
         myModel.run(); // контроллер вызывает метод модели start
+        //myModel.updateView();
     }
 }

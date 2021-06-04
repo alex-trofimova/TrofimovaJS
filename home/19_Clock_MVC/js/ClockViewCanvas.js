@@ -43,6 +43,14 @@ function ClockViewCanvas(){
         context.arc(CLOCK_CENTER_POS, CLOCK_CENTER_POS, CLOCK_CENTER_RADIUS, 0, 2*Math.PI, false);
         context.fill();
 
+        //электронные часы
+        //в формате чч:мм:сс
+        context.fillStyle = TEXT_COLOR;
+        context.font = 'normal '+DIG_FONT_WEIGHT+' '+DIG_FONT_SIZE+'px '+DIG_FONT_FAMILY;
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.fillText(myModel.currTimeStr, DIGITAL_CLOCK_POS_X_SVG,DIGITAL_CLOCK_POS_Y_SVG);
+
         //маленькие кружочки с цифрами
         for (var i=1; i<=SMALL_CIRCLE_AMOUNT; i++) {
             var smallCirclePosX = Math.round(CLOCK_CENTER_POS + TO_NUMBERS_DISTANCE*Math.sin(i*ANGLE_ROTATE_RAD));

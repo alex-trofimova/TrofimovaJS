@@ -97,6 +97,16 @@ function ClockViewSVG(){
         secondArrow.setAttribute('stroke-linecap', 'round');
         svgCont.append(secondArrow);
 
+        //ЭЛЕКТРОННЫЕ ЧАСЫ
+        //в формате чч:мм:сс
+        var digitalClock = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        digitalClock.setAttribute('class', 'digitalClock');
+        digitalClock.setAttribute('x', DIGITAL_CLOCK_POS_X_SVG);
+        digitalClock.setAttribute('y', DIGITAL_CLOCK_POS_Y_SVG);
+        digitalClock.setAttribute('text-anchor', 'middle');
+        digitalClock.setAttribute('style', 'font-weight:'+ DIG_FONT_WEIGHT+'; font-family:'+ DIG_FONT_FAMILY+'; font-size:'+ DIG_FONT_SIZE+'px');
+        svgCont.append(digitalClock);
+
         //ГОРОД И ЧАСОВОЙ ПОЯС
         //нахожу соответствующий оберточный для часов div внутри рабочего элемента DOM (т.е. myField)
         var cityNzone=myField.querySelector('.city-timezone');
@@ -109,5 +119,7 @@ function ClockViewSVG(){
             minuteArrow.setAttribute('transform', 'rotate('+ myModel.minStep +' '+CLOCK_CENTER_POS+' '+CLOCK_CENTER_POS+')');
             var hourArrow = myField.querySelector('.hourArrow');
             hourArrow.setAttribute('transform', 'rotate('+ myModel.hourStep +' '+CLOCK_CENTER_POS+' '+CLOCK_CENTER_POS+')');
+            var digitalClock = myField.querySelector('.digitalClock');
+            digitalClock.innerHTML=myModel.currTimeStr;
         }
 }

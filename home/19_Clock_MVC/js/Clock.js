@@ -54,6 +54,27 @@ function Clock (city) {
     }
 
     //элементы часов (их параметры - только те, которые ИЗМЕНЯЮТСЯ СО ВРЕМЕНЕМ)
+    //текущее время
+    self.currTime=new Date();
+    self.hours = self.currTime.getHours()+self.addhour;
+    self.minutes = self.currTime.getMinutes();
+    self.seconds = self.currTime.getSeconds();
+    
+    //форматированное текущее время в виде строки - для вывода
+    self.currTimeStr=formatTime(self.currTime);
+
+    function formatTime() {
+        return str0l(self.hours,2) + ':' + str0l(self.minutes,2) + ':' + str0l(self.seconds,2);
+    }
+
+    // дополняет строку val слева нулями до длины len
+    function str0l(val,len) {
+        var strVal=val.toString();
+        while ( strVal.length < len )
+            strVal='0'+strVal;
+        return strVal;
+    }
+
     //для стрелок - это шаг угла hourStep, minStep и secondStep, только шаг зависит от времени
     //причем для всех типов рисования одинаково
     self.hourStep = 0;
@@ -74,6 +95,7 @@ function Clock (city) {
 
     //запуск часов
     self.run=function() {
+       runTime();
        console.log('запустить часы');
        self.timer = setInterval(runTime,1000);
     }
@@ -86,15 +108,17 @@ function Clock (city) {
 
     //функция таймера (в ней нам нужны часы, минуты и секунды, а также само время в цифровом формате)
     function runTime() {
-        var currTime=new Date();
-        var hours=currTime.getHours()+self.addhour;
-        var minutes=currTime.getMinutes();
-        var seconds=currTime.getSeconds();
+        self.currTime=new Date();
+        self.hours=self.currTime.getHours()+self.addhour;
+        self.minutes=self.currTime.getMinutes();
+        self.seconds=self.currTime.getSeconds();
+
+        self.currTimeStr=formatTime(self.currTime);
 
        //расчет шага поворота для стрелок в зависимости от времени
-       self.secStep = SECOND_ROTATE_ANGLE*seconds;
-       self.minStep = MINUTE_ROTATE_ANGLE*(minutes+seconds/60);
-       self.hourStep = HOUR_ROTATE_ANGLE*(hours+minutes/60);
+       self.secStep = SECOND_ROTATE_ANGLE*self.seconds;
+       self.minStep = MINUTE_ROTATE_ANGLE*(self.minutes+self.seconds/60);
+       self.hourStep = HOUR_ROTATE_ANGLE*(self.hours+self.minutes/60);
 
        self.updateView();//раз что-то поменялось, вызываю обновление представления
     }
