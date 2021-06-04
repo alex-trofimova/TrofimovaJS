@@ -85,7 +85,78 @@ Controller — реализовать вариант старта/останов
 Все шесть часов должны независимо управляться своими кнопками «стоп» и «старт» (при загрузке страницы часы должны идти; по нажатию кнопки «стоп» 
 стрелки должны останавливаться; по нажатию «старт» — переводиться на текущее время и снова идти).
 */
+
 "use strict";
+//константы
+      //ЧАСЫ
+      const BIG_CIRCLE_RADIUS = 130, //радиус циферблата (половина диаметра большого круга)
+      BIG_CIRCLE_COLOR = '#fcca66', //цвет заливки
+
+      //ЦЕНТР часов в виде маленького кружочка
+      CLOCK_CENTER_RADIUS = BIG_CIRCLE_RADIUS*0.01, //его радиус в процентах (=1%) от размеров циферблата
+      CLOCK_CENTER_POS = BIG_CIRCLE_RADIUS, //положение (с учетом размеров)
+      CLOCK_CENTER_COLOR = 'black', //цвет заливки
+      
+      //ЦИФРЫ (12 кружков с цифрами)
+      SMALL_CIRCLE_RADIUS = BIG_CIRCLE_RADIUS*0.125, //радиус в процентах (=12.5%) от размеров циферблата
+      SMALL_CIRCLE_COLOR = '#48b383', //цвет заливки
+      SMALL_CIRCLE_AMOUNT = 12, //количество кружков и, соответственно цифр
+      ANGLE_ROTATE_GRAD = 360/SMALL_CIRCLE_AMOUNT,//угол в градусах между соседними кружками
+      ANGLE_ROTATE_RAD = ANGLE_ROTATE_GRAD/180*Math.PI,//он же в радианах
+
+      TO_NUMBERS_DISTANCE = BIG_CIRCLE_RADIUS*0.8, // положение кружков в в процентах (=80%) от размеров циферблата
+
+      //параметры текста цифр аналоговых часов
+      FONT_FAMILY = 'Arial',//шрифт
+      FONT_WEIGHT = 'bold',//жирность начертания
+      TEXT_COLOR = 'black',
+      FONT_SIZE = 16,
+
+        //ЭЛЕКТРОННЫЕ ЧАСЫ
+        DIGITAL_CLOCK_POS_X = 0.75*BIG_CIRCLE_RADIUS, //положение по горизонтали 
+        DIGITAL_CLOCK_POS_Y = 0.5*BIG_CIRCLE_RADIUS, //положение по высоте, на четверти круга, поэтому 0.5 радиуса
+        DIGITAL_CLOCK_POS_X_SVG = BIG_CIRCLE_RADIUS, //положение по горизонтали 
+        DIGITAL_CLOCK_POS_Y_SVG = 0.6*BIG_CIRCLE_RADIUS, //положение по высоте, на четверти круга, поэтому 0.5 радиуса
+
+        //параметры текста цифр электронных часов
+        DIG_FONT_FAMILY = 'Arial',//шрифт
+        DIG_FONT_WEIGHT = 'bold',//жирность начертания
+        DIG_FONT_SIZE = 18,//размер шрифта в пикселях  
+
+
+      //СТРЕЛКИ
+      //часовая
+      HOUR_LENGTH = BIG_CIRCLE_RADIUS*0.5, //длина стрелки в процентах (=50%) от размеров циферблата
+      HOUR_WIDTH = 8, //толщина стрелки в пикселях
+      HOUR_ROUNDING = 10, //радиус закругления в пикселях
+      HOUR_COLOR = 'rgba(50,50,50,0.5)', //цвет стрелки
+      //координаты начала и конца стрелки
+      HOUR_START_POS_X = CLOCK_CENTER_POS,
+      HOUR_START_POS_Y = CLOCK_CENTER_POS+0.1*HOUR_LENGTH,//смещаю положение стрелки на 10% от ее длины (чтобы хвостик торчал)
+      HOUR_END_POS_X = CLOCK_CENTER_POS,
+      HOUR_END_POS_Y = CLOCK_CENTER_POS-0.9*HOUR_LENGTH,
+
+      //минутная
+      MINUTE_LENGTH = BIG_CIRCLE_RADIUS*0.7, //длина стрелки в процентах (=75%) от размеров циферблата
+      MINUTE_WIDTH = 4, //толщина стрелки в пикселях
+      MINUTE_ROUNDING = 8, //радиус закругления в пикселях
+      MINUTE_COLOR = 'rgba(50,50,50,0.5)', //цвет стрелки
+      //координаты начала и конца стрелки
+      MINUTE_START_POS_X = CLOCK_CENTER_POS,
+      MINUTE_START_POS_Y = CLOCK_CENTER_POS+0.1*MINUTE_LENGTH,//смещаю положение стрелки на 10% от ее длины (чтобы хвостик торчал)
+      MINUTE_END_POS_X = CLOCK_CENTER_POS,
+      MINUTE_END_POS_Y = CLOCK_CENTER_POS-MINUTE_LENGTH,
+
+      //секундная
+      SECOND_LENGTH = BIG_CIRCLE_RADIUS*0.85, //длина стрелки в процентах (=85%) от размеров циферблата
+      SECOND_WIDTH = 3, //толщина стрелки в пикселях
+      SECOND_ROUNDING = 6, //радиус закругления в пикселях
+      SECOND_COLOR = 'rgba(255,0,0,0.5)', //цвет стрелки
+      //координаты начала и конца стрелки
+        SECOND_START_POS_X = CLOCK_CENTER_POS,
+        SECOND_START_POS_Y = CLOCK_CENTER_POS+0.1*SECOND_LENGTH,//смещаю положение стрелки на 10% от ее длины (чтобы хвостик торчал)
+        SECOND_END_POS_X = CLOCK_CENTER_POS,
+        SECOND_END_POS_Y = CLOCK_CENTER_POS-0.9*SECOND_LENGTH;
 
 //создаю все компоненты MVC (6 объектов моделей, 6 объектов представлений ...)
 var clockDOM1 = new Clock('Нью-Йорк');
