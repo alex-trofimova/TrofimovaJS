@@ -1,0 +1,1 @@
+[{"label":"Фамилия:","kind":"longtext","name":"lastname"},{"label":"Имя:","kind":"longtext","name":"firstname"},{"label":"Отчество:","kind":"longtext","name":"secondname"},{"label":"Возраст:","kind":"number","name":"age"},{"label":"Зарегистрироваться","kind":"submit"}]

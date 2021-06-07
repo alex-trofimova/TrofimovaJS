@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic form with AJAX request</title>
+
+<style>
+      label {
+        display: flex;
+        width: 800px;
+        margin: 3px;
+      }
+
+      input {
+        margin-left: 10px;
+      }
+
+      .longtext {
+        width: 400px;
+      }
+
+      .shorttext, .combo{
+        width: 200px;
+      }
+
+      .number {
+        width: 50px;
+      }
+
+      .memo {
+        width: 800px;
+      }
+
+      .submit {
+        margin: 0 0 50px 0;
+      }
+
+    </style> 
+</head>
+<body>
+<form action="https://fe.it-academy.by/TestForm.php" name="dynform" method="POST"></form>
+
+<script src='http://fe.it-academy.by/JQ/jquery.js'></script>
+<script>
+/*
+Переделать проект DYN_FORM на использование AJAX — подгружать двумя AJAX-запросами массивы с описаниями форм.
+Формы должны отобразиться на веб-странице в том же порядке, в котором они приведены в задании DYN_FORM.
+*/
+"use strict";
+//массив
+var formDef1=
+[
+  {label:'Название сайта:',kind:'longtext',name:'sitename'},
+  {label:'URL сайта:',kind:'longtext',name:'siteurl'},
+  {label:'Посетителей в сутки:',kind:'number',name:'visitors'},
+  {label:'E-mail для связи:',kind:'shorttext',name:'email'},
+  {label:'Рубрика каталога:',kind:'combo',name:'division',
+    variants:[{text:'здоровье',value:1},{text:'домашний уют',value:2},{text:'бытовая техника',value:3}]},
+  {label:'Размещение:',kind:'radio',name:'payment',
+    variants:[{text:'бесплатное',value:1},{text:'платное',value:2},{text:'VIP',value:3}]},
+  {label:'Разрешить отзывы:',kind:'check',name:'votes'},
+  {label:'Описание сайта:',kind:'memo',name:'description'},
+  {label:'Опубликовать',kind:'submit'},
+];
+
+var formDef2=
+[
+  {label:'Фамилия:',kind:'longtext',name:'lastname'},
+  {label:'Имя:',kind:'longtext',name:'firstname'},
+  {label:'Отчество:',kind:'longtext',name:'secondname'},
+  {label:'Возраст:',kind:'number',name:'age'},
+  {label:'Зарегистрироваться',kind:'submit'},
+];
+
+//получала так данные в json формате для создания файлов .json
+// var form1Json = JSON.stringify(formDef1);
+// var form2Json = JSON.stringify(formDef2);
+// console.log(form1Json);
+// console.log(form2Json);
+
+//функция загрузки данных
+loadData();
+
+//создаю пустые массивы для заполнения загруженными данными
+var formData1=[];
+var formData2=[];
+
+//описание функции
+function loadData() {
+    $.ajax("form1.json",
+        {   type:'GET', 
+            dataType:'json', 
+            success: function (data) {
+                formData1 = data;
+                //console.log(formData1);
+                createForm(formData1);       
+            },
+            error:errorHandler }
+    );
+
+    $.ajax("form2.json",
+        {   type:'GET', 
+            dataType:'json', 
+            success: function (data) {
+                formData2 = data;
+                //console.log(formData2);
+                createForm(formData2);       
+            },
+            error:errorHandler }
+    );
+}
+
+    function errorHandler(jqXHR,statusStr,errorStr) {
+        alert(statusStr+' '+errorStr);
+    }
+
+
+//создаю пустой массив
+var newArray = [];
+
+//функция
+function createForm (newArray) {
+  var frm = document.forms['dynform']; // осуществляю поиск формы по ее атрибуту name
+
+  //последовательный перебор элементов данного массива
+  for (var i = 0; i < newArray.length; i++) {
+    
+    //если есть ключ name в элементе массива, т.е. это не кнопка
+    if ('name' in newArray[i]) {
+      //то сначала создаю подпись для поля формы
+      var newLabel = document.createElement('label');
+      //наполняю ее нужным текстом
+      newLabel.innerHTML = newArray[i].label;
+      //создаю
+      frm.appendChild(newLabel);
+      
+      //создаю нужные поля формы в зависимости от значения ключа kind 
+      
+      // если это выпадающий список
+      if (newArray[i].kind == 'combo') {
+        var newInput = document.createElement('select');
+        newInput.name = newArray[i].name;
+
+        newLabel.appendChild(newInput);
+        //вывожу элементы списка
+        for (var j = 0; j < newArray[i].variants.length; j++) {
+          var newOption = document.createElement('option');
+          newOption.value = newArray[i].variants[j].value;
+          newOption.textContent = newArray[i].variants[j].text;
+          newInput.appendChild(newOption);
+        }
+      }
+
+      //если это radio
+      else if (newArray[i].kind == 'radio') {
+        for (var k = 0; k < newArray[i].variants.length; k++) {
+          var newInput = document.createElement('input');
+          var newSpan =  document.createElement('span');
+          newInput.type = 'radio';
+          newInput.name = newArray[i].name;
+          newInput.value = newArray[i].variants[k].value;
+          newSpan.textContent = newArray[i].variants[k].text;
+          newLabel.appendChild(newInput);
+          newLabel.appendChild(newSpan);
+        }
+      }
+
+      //если это checkbox
+      else if (newArray[i].kind == 'check') {
+        var newInput = document.createElement('input');
+        newInput.type = 'checkbox';
+        newInput.name = newArray[i].name;
+        newInput.checked = true;
+        newLabel.appendChild(newInput);
+      }
+
+      //если это textarea
+      else if (newArray[i].kind == 'memo') {
+        var newInput = document.createElement('textarea');
+        newInput.name = newArray[i].name;
+        newInput.className = newArray[i].kind;
+        newLabel.appendChild(newInput);
+      }
+
+      //если это обычное текстовое поле, т.е. во всех остальных случаях
+      else {
+        var newInput = document.createElement('input');
+        newInput.name = newArray[i].name;
+        newInput.className = newArray[i].kind;
+        newLabel.appendChild(newInput); 
+      }
+    }
+    //если это кнопка, то выводится без подписи
+    else {
+      var newInput = document.createElement('input');
+      newInput.name = newArray[i].name;
+      newInput.type = 'submit';
+      newInput.value = newArray[i].label;
+      newInput.className = newArray[i].kind;
+      frm.appendChild(newInput);
+    }
+  }
+}
+</script>    
+</body>
+</html>
