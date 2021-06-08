@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Drink storage by AJAX</title>
+    <style>
+        .container {
+            display: flex;
+        }
+        input {
+            margin-bottom: 10px;
+        }
+        .drinks, .dishes {
+            width: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="drinks">
+            <h3>Хранилище рецептов напитков</h3>
+            <input type="button" value="Ввод информации о напитке" onclick='inputDrinkData( )'><br>
+            <input type="button" value="Получение информации о напитке" onclick='getDrinkData( )'> <br>
+            <input type="button" value="Удаление информации о напитке" onclick='deleteDrinkData( )'> <br>
+            <input type="button" value="Перечень всех напитков" onclick='getDrinkList( )'>
+        </div>
+    
+        <div class="dishes">
+            <h3>Хранилище рецептов блюд</h3>
+            <input type="button" value="Ввод информации о блюде" onclick='inputDishData( )'><br>
+            <input type="button" value="Получение информации о блюде" onclick='getDishData( )'> <br>
+            <input type="button" value="Удаление информации о блюде" onclick='deleteDishData( )'> <br>
+            <input type="button" value="Перечень всех блюд" onclick='getDishList( )'>
+        </div>
+    </div>
+
+<!--Подключение jquery-->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" 
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" 
+        crossorigin="anonymous"></script>
+<script src="AJAXStorage.js"></script> 
+<script>
+/*
+В проекте DRINKS разработать класс AJAXStorage (в модуле AJAXStorage.js)
+ для сохранения информации о напитках, кроме сохранения в локальном хэше, 
+ также и на удалённом сервере (обмен данными с сервером — через AJAX, сервис AjaxStringStorage2).
+*/
+"use strict";
+// Создаю 2 объекта drinkStorage и dishStorage класса LocStorage для хранения рецептов напитков и блюд, соответственно.
+var drinkStorage = new AJAXStorage("напитки");
+var dishStorage = new AJAXStorage("блюда");
+
+//функции для кнопок
+// 1) функция для кнопки Ввод информации о напитке
+function inputDrinkData ( ) {
+    var drinkName = prompt ('Введите название напитка:');
+    var isAlcogol = prompt ('Он алкогольный: да или нет?');
+    var recipe = prompt ('Напишите рецепт приготовления');
+    var info = {'алкогольный': isAlcogol, 'рецепт приготовления': recipe};
+    drinkStorage.addValue(drinkName, info);
+}
+
+// 2) функция для кнопки Получение информации о напитке
+function getDrinkData ( ) {
+    var drinkName = prompt ('Введите название напитка, который Вас интересует:');
+    var gain = drinkStorage.getValue(drinkName);
+    if (gain == undefined) alert('Информации о напитке ' + drinkName + ' в базе нет!');  
+    else {
+        console.log('напиток ' + drinkName);
+        for (var key in gain) 
+            console.log(key + ': ' + gain[key]);
+    }           
+}
+
+// 3) функция для кнопки Удаление информации о напитке
+function deleteDrinkData() {
+    var drinkName = prompt ('Введите название напитка, информацию о котором нужно удалить:');
+    var del = drinkStorage.deleteValue(drinkName);
+    if (del) alert('Информация о напитке ' + drinkName + ' удалена!');
+    else alert('Информации о напитке ' + drinkName + ' в базе и не было!');    
+}
+
+// 4) функция для кнопки Перечень всех напитков
+function getDrinkList ( ) {
+    alert(drinkStorage.getKeys());
+}
+
+// 5) функция для кнопки Ввод информации о блюде
+function inputDishData ( ) {
+    var dishName = prompt ('Введите название блюда:');
+    var dishKind = prompt ('К какому виду оно относится: первое, второе или десерт?');
+    var recipe = prompt ('Напишите рецепт приготовления');
+    var info = {'вид': dishKind, 'рецепт приготовления': recipe};
+    dishStorage.addValue(dishName, info);
+}
+
+// 6) функция для кнопки Получение информации о блюде
+function getDishData ( ) {
+    var dishName = prompt ('Введите название блюда, который Вас интересует:');
+    var gain = dishStorage.getValue(dishName);
+    if (gain == undefined) alert('Информации о блюде ' + dishName + ' в базе нет!');  
+    else {
+        console.log('блюдо ' + dishName);
+        for (var key in gain) 
+            console.log(key + ': ' + gain[key]);
+    }           
+}
+
+// 7) функция для кнопки Удаление информации о блюде
+function deleteDishData() {
+    var dishName = prompt ('Введите название блюда, информацию о котором нужно удалить:');
+    var del = dishStorage.deleteValue(dishName);
+    if (del) alert('Информация о блюде ' + dishName + ' удалена!');
+    else alert('Информации о блюде ' + dishName + ' в базе и не было!');    
+}
+
+// 8) функция для кнопки Перечень всех блюд
+function getDishList ( ) {
+    alert(dishStorage.getKeys());
+}
+</script>    
+</body>
+</html>
