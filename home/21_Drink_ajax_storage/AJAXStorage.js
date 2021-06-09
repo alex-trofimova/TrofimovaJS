@@ -2,26 +2,17 @@
 var ajaxHandlerScript="https://fe.it-academy.by/AjaxStringStorage2.php";
 var updatePassword;
 
-function AJAXStorage(objType, stringName) {
+function AJAXStorage(stringName) {
     var self=this;
 
-    self.type = objType; //свойство класса для выбора типа объекта (напиток или блюдо)
-
-    //создаю хэш в конструкторе (как было раньше)
-    //если на удаленном сервере ничего нет, то хэш пустой
-    if (getData() == null) {
-         self.hash = {}; 
-        }
-    //если что-то есть, то заполняю этими данными
-   else self.hash = getData();
-
+    self.type = stringName; //свойство класса для выбора типа объекта (напиток или блюдо)
 
     function getData() {
         $.ajax(
             {
                 url : ajaxHandlerScript, 
                 type : 'POST', dataType:'json',
-                data : { f : 'READ', n : stringName },
+                data : { f : 'READ', n : self.type },
                 cache : false, 
                 success : readReady, error : errorHandler
             }
@@ -32,16 +23,18 @@ function AJAXStorage(objType, stringName) {
         if ( callresult.error!=undefined )
             alert(callresult.error);
         else if ( callresult.result!="" ) {
-            var info=JSON.parse(callresult.result);
-            return info;
+            self.hash=JSON.parse(callresult.result);
         }
     }
+    //заполняю хэш данными с удаленного сервера
+    getData();
+
 
     //1. МЕТОД ДОБАВЛЕНИЯ ИНФОРМАЦИИ О НАПИТКЕ (БЛЮДЕ)
     self.addValue=function(key,value){
         self.hash[key]=value;
         //изменился хэш - перезаписываю данные на удаленном сервере
-        //вызов функции loadData
+        //т.е. вызываю функцию loadData
         loadData();
     }
 
@@ -49,7 +42,7 @@ function AJAXStorage(objType, stringName) {
         updatePassword=Math.random();
         $.ajax( {   url : ajaxHandlerScript, 
                     type : 'POST', dataType:'json',
-                    data : { f : 'LOCKGET', n : stringName, p : updatePassword },
+                    data : { f : 'LOCKGET', n : self.type, p : updatePassword },
                     cache : false,
                     success : lockGetReady, error : errorHandler
                 }
@@ -63,7 +56,7 @@ function AJAXStorage(objType, stringName) {
             $.ajax( {
                     url : ajaxHandlerScript, 
                     type : 'POST',  dataType:'json',
-                    data : { f : 'UPDATE', n : stringName, v : JSON.stringify(self.hash), p : updatePassword },
+                    data : { f : 'UPDATE', n : self.type, v : JSON.stringify(self.hash), p : updatePassword },
                     cache : false,
                     success : updateReady, error : errorHandler
                 }
@@ -90,7 +83,7 @@ function AJAXStorage(objType, stringName) {
         if (key in self.hash) {
             delete self.hash[key];
             //изменился хэш - перезаписываю данные на удаленном сервере
-            //вызов функции loadData
+            //т.е. вызываю функцию loadData
             loadData();
             return true;
         }
