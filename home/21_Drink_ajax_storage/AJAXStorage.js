@@ -1,28 +1,45 @@
 "use strict";
 var ajaxHandlerScript="https://fe.it-academy.by/AjaxStringStorage2.php";
 var updatePassword;
-var stringName='TROFIMOVA_DRINK_STORAGE';
 
-
-function AJAXStorage(objType) {
+function AJAXStorage(objType, stringName) {
     var self=this;
 
     self.type = objType; //свойство класса для выбора типа объекта (напиток или блюдо)
 
     //создаю хэш в конструкторе (как было раньше)
-    //если в локальном хранилище ничего нет, то он пустой
-    if (localStorage.getItem(self.type) == null) {
+    //если на удаленном сервере ничего нет, то хэш пустой
+    if (getData() == null) {
          self.hash = {}; 
         }
     //если что-то есть, то заполняю этими данными
-    else self.hash = JSON.parse(localStorage.getItem(self.type));
+   else self.hash = getData();
 
+
+    function getData() {
+        $.ajax(
+            {
+                url : ajaxHandlerScript, 
+                type : 'POST', dataType:'json',
+                data : { f : 'READ', n : stringName },
+                cache : false, 
+                success : readReady, error : errorHandler
+            }
+        );
+    }
+    
+    function readReady(callresult) {
+        if ( callresult.error!=undefined )
+            alert(callresult.error);
+        else if ( callresult.result!="" ) {
+            var info=JSON.parse(callresult.result);
+            return info;
+        }
+    }
 
     //1. МЕТОД ДОБАВЛЕНИЯ ИНФОРМАЦИИ О НАПИТКЕ (БЛЮДЕ)
     self.addValue=function(key,value){
         self.hash[key]=value;
-        //изменился хэш - добавляю данные в localStorage
-        localStorage.setItem(self.type, JSON.stringify(self.hash));
         //изменился хэш - перезаписываю данные на удаленном сервере
         //вызов функции loadData
         loadData();
@@ -72,8 +89,6 @@ function AJAXStorage(objType) {
     self.deleteValue=function(key) {
         if (key in self.hash) {
             delete self.hash[key];
-            //снова изменился хэш - опять добавляю данные в localStorage
-            localStorage.setItem(self.type, JSON.stringify(self.hash));
             //изменился хэш - перезаписываю данные на удаленном сервере
             //вызов функции loadData
             loadData();
