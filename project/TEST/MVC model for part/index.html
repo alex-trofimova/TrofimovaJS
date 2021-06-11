@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part class creation</title>
+</head>
+<body>
+    <div class="container">
+        <svg version="1.1"
+             width="1200" height="800"
+             xmlns="http://www.w3.org/2000/svg"
+             id="svgcont">
+        </svg>    
+    </div>
+<script src="js/partModel.js"></script>
+<script src="js/partView.js"></script>
+<script src="js/partControlMouse.js"></script>
+<script>
+"use strict";
+//создаю все компоненты MVC
+var fig_1_1_1 = new PartModel(1, 1, 1, 50, 50, 300, 300, 50, 300);
+var viewFig_1_1_1 = new PartView();
+var controlFig= new PartController();
+
+var svgContainer = document.getElementById('svgcont');
+
+//связываю компоненты
+fig_1_1_1.start(viewFig_1_1_1, controlFig);
+viewFig_1_1_1.start(fig_1_1_1, svgContainer);
+
+//первичное отображение фигуры
+viewFig_1_1_1.draw();
+
+controlFig.start(fig_1_1_1, svgContainer);
+
+
+
+
+
+</script>
+</body>
+</html>

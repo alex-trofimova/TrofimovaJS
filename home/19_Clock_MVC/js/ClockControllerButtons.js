@@ -10,7 +10,7 @@ function ClockControllerButtons(){
         myModel = model;
         myField = field;
 
-        // осущетсвляю поиск кнопок
+        // осуществляю поиск кнопок
         var buttonStop=myField.querySelector('.stop');
         var buttonStart=myField.querySelector('.start');
 

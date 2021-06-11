@@ -7,30 +7,48 @@
     <title>Drag SVG</title>
 </head>
 <body>
-<svg version="1.1"
-     width="800" height="300"  
+<div class="container">
+    <svg version="1.1"
+     width="800" height="800"
      xmlns="http://www.w3.org/2000/svg"
-     id="svgcont">
-     <circle cx="200" cy="200" r="100" fill="#fcca66" id="part" cursor = 'default'/>
-</svg>    
+     id="svg1">
+     <circle cx="100" cy="100" r="100" fill="#fcca66" id="part1" cursor='default' transform ="translate (200 200) rotate (45)"/>
+    </svg>    
+    <!-- <svg version="1.1"
+     width="800" height="800"
+     x="30" y="30" 
+     xmlns="http://www.w3.org/2000/svg"
+     id="svg1">
+     <polygon points="5, 125 80, 140 15, 255" fill="red" id="part2" cursor = 'default'/>
+    </svg>-->
+</div>
+
 </body>
 <script>
-var part = document.getElementById('part');
-part.onmousedown = objMouseStart;
+var part1 = document.getElementById('part1');
+//var part2 = document.getElementById('part2');
+//part1.onmousedown = objMouseStart;
+//part2.onmousedown = objMouseStart;
+var partstr = part1.getAttribute('transform').replace(/[()]/g, '');
+console.log(partstr);
+var part1Arr = partstr.split(" ")
+console.log(part1Arr);
+console.log(part1Arr[1]);
+console.log(parseFloat(part1Arr[1]));
+console.log(parseFloat(part1Arr[2]));
+console.log(parseFloat(part1Arr[4]));
+var part1Arr2 = part1.getAttribute('transform').replace(/[()]/g, '').split(" ");
+console.log(part1.clientX);
+console.log(part1.clientY);
 
-var leftPos = parseFloat(part.getAttribute('cx'));
-var topPos = parseFloat(part.getAttribute('cy'));
 
-part.setAttribute('cx', leftPos);
-part.setAttribute('cy', topPos);
 
-console.log(leftPos);
-console.log(typeof(leftPos));
-console.log(topPos);
 
+// ввожу перменные для запоминания координат точки наведения мыши относительно левого верхнего угла картинки  
 var pressShiftLeft = 0;
 var pressShiftTop = 0;
 
+// ввожу переменную для объекта перемещения (пока здесь ничего нет)
 var draggedPart=null;
 
 function objMouseStart(EO) {
@@ -40,10 +58,17 @@ function objMouseStart(EO) {
 
     draggedPart=EO.target;
 
-    part.setAttribute('cursor', 'pointer');
+    //переношу перетаскиваемый элемент в конец контейнера - оберточного div-а с изображениями
+    // var container = document.getElementById('container');
+    // container.appendChild(draggedPart);
 
-    pressShiftLeft = EO.clientX - leftPos;
-    pressShiftTop = EO.clientY - topPos;
+    draggedPart.setAttribute('cursor', 'pointer');
+
+    pressShiftLeft = EO.clientX;
+    pressShiftTop = EO.clientY;
+
+    // pressShiftLeft = EO.clientX - draggedPart.offsetLeft;
+    // pressShiftTop = EO.clientY - draggedPart.offsetTop;
 
     document.onmousemove = objMouseMove;
 
@@ -53,7 +78,7 @@ function objMouseStart(EO) {
 function objMouseEnd(EO) {
     EO=EO||window.event;
 
-    part.setAttribute('cursor', 'default');
+    draggedPart.setAttribute('cursor', 'default');
     document.onmousemove = null;
     draggedPart.onmouseup = null;
     draggedPart = null;
@@ -65,8 +90,11 @@ function objMouseMove(EO) {
 
     EO.preventDefault();
 
-    part.setAttribute('cx', EO.pageX - pressShiftLeft);
-    part.setAttribute('cy', EO.pageY - pressShiftTop);
+    draggedPart.setAttribute('transform', 'translate ('+EO.pageX - pressShiftLeft+' '+EO.pageY - pressShiftTop+')');
+
+    //новое положение объекта
+    // draggedPart.style.left = (EO.pageX - pressShiftLeft) + 'px';
+    // draggedPart.style.top = (EO.pageY - pressShiftTop) + 'px';
 }
 </script>
 </html>
