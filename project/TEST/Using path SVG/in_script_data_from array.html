@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Path SVG</title>
+    <style>
+        svg {
+            background-color: aquamarine;
+        }
+    </style>
+</head>
+<body>
+    <svg version="1.1"
+    width="400" height="400"
+    xmlns="http://www.w3.org/2000/svg"
+    id="svgcont">
+   </svg>
+   
+<script>
+ "use strict";
+
+var x0 = 20;
+var y0 = 220;
+
+var l1_x = 20;
+var l1_y = 20;
+
+var l2_x = 220;
+var l2_y = 220;
+
+
+
+// M 20 220 V 20 L 220 220 H 20 z'
+var dataHash = {m: [x0,y0],
+                l1: [l1_x, l1_y],
+                l2: [l2_x, l2_y],
+                };
+
+console.log(dataHash.m);
+console.log(dataHash.l1[0]);
+console.log(dataHash.l2[0]);
+
+var svgcont = document.getElementById('svgcont');
+
+var elem = document.createElementNS("http://www.w3.org/2000/svg", "path");
+elem.setAttribute('d', 'M '+dataHash.m[0]+' '+dataHash.m[1]+ 
+                      ' L '+dataHash.l1[0]+' '+dataHash.l1[1]+
+                      ' L '+dataHash.l2[0]+' '+dataHash.l2[1]+
+                      ' z');
+elem.setAttribute('fill', 'blue');
+elem.setAttribute('id', 'triangle');
+svgcont.append(elem);
+
+</script>
+</body>
+</html>
