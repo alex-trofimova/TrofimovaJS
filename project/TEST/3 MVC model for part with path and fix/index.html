@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Part class creation</title>
+    <style>
+        .game_container {
+            background-color:floralwhite;
+            border: 1px solid green;
+            width: 1200px;
+            height: 540px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+        }
+        #svgcont {
+            width: 1200px;
+            height: 480px;
+            background-color: bisque;
+            border: 1px solid red; 
+        }
+    </style>
+</head>
+<body>
+    <div class="game_container">
+        <svg version="1.1"
+             xmlns="http://www.w3.org/2000/svg"
+             id="svgcont">
+        </svg> 
+    </div>   
+
+<script src="js/partModel.js"></script>
+<script src="js/partView.js"></script>
+<script src="js/partControlMouse.js"></script>
+
+<!--Подключение jquery-->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" 
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" 
+        crossorigin="anonymous">
+</script>
+
+<script>
+"use strict";
+var svgContainer = document.getElementById('svgcont');
+
+var squareCont = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+squareCont.setAttribute('x', 80);
+squareCont.setAttribute('y', 10);
+squareCont.setAttribute('width', 680);
+squareCont.setAttribute('height', 460);
+squareCont.setAttribute('fill', '#c3c3c3');
+svgContainer.append(squareCont);
+
+//функция отрисовки пустых квадратов
+drawSquares();
+
+//описание функции
+function drawSquares() {
+    $.ajax("json/squares.json",
+        {   type:'GET', 
+            dataType:'json', 
+            success: function (data) {
+                useDataToDrawSquares(data);    
+            },
+            error:errorHandler }
+    );
+}
+
+function useDataToDrawSquares(arr) {
+    for (var i=0; i<arr.length; i++){
+        var square = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        square.setAttribute('x', arr[i][0]);
+        square.setAttribute('y', arr[i][1]);
+        square.setAttribute('width', arr[i][2]-arr[i][0]);
+        square.setAttribute('height', arr[i][3]-arr[i][1]);
+        square.setAttribute('fill', '#e6e6e6');
+        square.setAttribute('class', 'square'+i);
+        svgContainer.append(square);
+    }
+}
+
+var elemCont = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+elemCont.setAttribute('x', 880);
+elemCont.setAttribute('y', 0);
+elemCont.setAttribute('width', 350);
+elemCont.setAttribute('height', 480);
+elemCont.setAttribute('fill', '#c3c3c3');
+svgContainer.append(elemCont);
+
+//массив с инфо о фиксированных элементах
+var fixedElemArr = [
+        {}, //квадрат №1
+        {}, //квадрат №2
+        {}, //квадрат №3
+        {}, //квадрат №4
+        {}, //квадрат №5
+        {}, //квадрат №6
+    ];
+
+//функция загрузки данных
+loadData();
+
+//описание функции
+function loadData() {
+    $.ajax("json/data1.json",
+        {   type:'GET', 
+            dataType:'json', 
+            success: function (data) {
+                useDataToCreateElements(data);    
+            },
+            error:errorHandler }
+    );
+}
+
+function errorHandler(jqXHR,statusStr,errorStr) {
+        alert(statusStr+' '+errorStr);
+}
+
+function useDataToCreateElements(arr) {
+    for (var i=0; i<arr.length; i++){
+
+        // var argStr = arr[i].join(',');
+        // console.log(argStr);
+
+        //создаю все компоненты MVC
+        var fig = new PartModel(arr[i][0], arr[i][1], arr[i][2], arr[i][3], arr[i][4], arr[i][5], arr[i][6], arr[i][7], arr[i][8], arr[i][9], arr[i][10]);
+        var viewFig = new PartView();
+        var controlFig= new PartController();
+
+        //связываю компоненты
+        fig.start(viewFig, controlFig);
+        viewFig.start(fig, svgContainer);
+
+        //первичное отображение фигуры
+        viewFig.draw();
+
+        //запускаю контроллер
+        controlFig.start(fig, svgContainer);
+    }
+
+}
+
+
+
+</script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game field with 6 bases</title>
+</head>
+<style>
+    .game_container {
+        background-color:floralwhite;
+        border: 1px solid green;
+        width: 1200px;
+        height: 540px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: center;
+        align-items: flex-end;
+    }
+    #svgcont {
+        width: 1200px;
+        height: 480px;
+        background-color: bisque;
+        border: 1px solid red;
+        
+        
+    }
+</style>
+<body>
+<div class="game_container">
+    <svg version="1.1"
+         xmlns="http://www.w3.org/2000/svg"
+         id="svgcont">
+        <rect x=80 y=10 width=680 height=460 fill='#c3c3c3'/>
+
+        <rect x=100 y=30 width=200 height=200 fill='#e6e6e6'/>
+        <rect x=320 y=30 width=200 height=200 fill='#e6e6e6'/>
+        <rect x=540 y=30 width=200 height=200 fill='#e6e6e6'/>
+
+        <rect x=100 y=250 width=200 height=200 fill='#e6e6e6'/>
+        <rect x=320 y=250 width=200 height=200 fill='#e6e6e6'/>
+        <rect x=540 y=250 width=200 height=200 fill='#e6e6e6'/>
+
+        <rect x=880 y=0 width=350 height=480 fill='#c3c3c3'/>
+    </svg> 
+</div>   
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For json creation</title>
+</head>
+<body>
+<!--Подключение jquery-->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" 
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" 
+        crossorigin="anonymous">
+</script>
+<script>
+    var dataArr =[
+        [1, 4, 900, 300, 900, 100, 1100, 100, 1100, 300],
+        [1, 4, 1000, 450, 1000, 250, 1100, 250, 1100, 450],
+        [1, 4, 950, 350, 950, 250, 1150, 250, 1150, 350]
+    ];
+console.log(dataArr);
+console.log(dataArr[0]);
+console.log(dataArr[0][1]);
+
+// for (var i=0; i<dataArr.length; i++){
+//     //console.log(dataArr[i]);
+//     var argStr = dataArr[i].join(', ');
+//     console.log(argStr);
+//     console.log('-------');
+// }
+
+var dataArrJ = JSON.stringify(dataArr);
+console.log(dataArrJ);
+
+            // <rect x=95 y=25 width=210 height=210 fill='#e6e6e6' class="square1"/>
+            // <rect x=315 y=25 width=210 height=210 fill='#e6e6e6' class="square2"/>
+            // <rect x=535 y=25 width=210 height=210 fill='#e6e6e6' class="square3"/>
+    
+            // <rect x=95 y=245 width=210 height=210 fill='#e6e6e6' class="square4"/>
+            // <rect x=315 y=245 width=210 height=210 fill='#e6e6e6' class="square5"/>
+            // <rect x=535 y=245 width=210 height=210 fill='#e6e6e6' class="square6"/>
+
+var squaresCoordArr = [
+    [95, 25, 305, 235],
+    [315, 25, 525, 235],
+    [535, 25, 745, 235],
+    [95, 245, 305, 455],
+    [315, 245, 525, 455],
+    [535, 245, 745, 455],
+];
+
+var squaresCoordArrJ = JSON.stringify(squaresCoordArr);
+console.log(squaresCoordArrJ);
+
+//функция загрузки данных
+// loadData();
+//var data1 = loadData();
+// console.log(dataArr0);
+// console.log(dataArr0[0]);
+// console.log(dataArr0[0][1]); 
+
+//console.log(loadData());
+
+//создаю пустые массивы для заполнения загруженными данными (один массив для каждого уровня) 
+//var dataArr1=[];
+
+//описание функции
+function loadData() {
+    $.ajax("../json/data1.json",
+        {   type:'GET', 
+            dataType:'json', 
+            success: function (data) {
+                useData(data);   
+            },
+            error:errorHandler }
+    );
+}
+
+    function errorHandler(jqXHR,statusStr,errorStr) {
+        alert(statusStr+' '+errorStr);
+    }
+
+function useData(arr) {
+    console.log(arr[0][1]);
+}
+
+</script>    
+</body>
+</html>
