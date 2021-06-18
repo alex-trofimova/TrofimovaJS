@@ -126,9 +126,9 @@ function PartModel(level, type, number, x0, y0, x1, y1, x2, y2, x3, y3, x4, y4, 
     }
 
     //получение значений параметров текущего представления (View) 
-    self.getCurrentViewData=function() {
+    self.getCurrentViewData=function(EO) {
         if (myView) {
-            myView.getCurrentData(); 
+            myView.getCurrentData(EO); 
         }    
     }
 
@@ -231,7 +231,6 @@ function PartModel(level, type, number, x0, y0, x1, y1, x2, y2, x3, y3, x4, y4, 
 
 
     //ФИКСИРОВАНИЕ ФИГУРЫ
-    //мышкой
     self.fix =function(EO) {
 
         if (self.isfixed == false) {
@@ -251,8 +250,195 @@ function PartModel(level, type, number, x0, y0, x1, y1, x2, y2, x3, y3, x4, y4, 
             self.rotateOriginX = parseFloat(partArr[5]);
             self.rotateOriginY = parseFloat(partArr[6]);
 
-            self.check();
+            //пересчет положения координат вершин (т.е. с учетом того, что фигуру вращали и перетаскивали)
+            self.posx0 = self.transX + self.x0;
+            self.posy0 = self.transY + self.y0;
+            self.posx1 = self.transX + self.x0 + (self.x1-self.x0)*Math.cos(self.rotateAngle*Math.PI/180) - (self.y1-self.y0)*Math.sin(self.rotateAngle*Math.PI/180);
+            self.posy1 = self.transY + self.y0 + (self.x1-self.x0)*Math.sin(self.rotateAngle*Math.PI/180) + (self.y1-self.y0)*Math.cos(self.rotateAngle*Math.PI/180);
+            self.posx2 = self.transX + self.x0 + (self.x2-self.x0)*Math.cos(self.rotateAngle*Math.PI/180) - (self.y2-self.y0)*Math.sin(self.rotateAngle*Math.PI/180);
+            self.posy2 = self.transY + self.y0 + (self.x2-self.x0)*Math.sin(self.rotateAngle*Math.PI/180) + (self.y2-self.y0)*Math.cos(self.rotateAngle*Math.PI/180);
+            self.posx3 = self.transX + self.x0 + (self.x3-self.x0)*Math.cos(self.rotateAngle*Math.PI/180) - (self.y3-self.y0)*Math.sin(self.rotateAngle*Math.PI/180);
+            self.posy3 = self.transY + self.y0 + (self.x3-self.x0)*Math.sin(self.rotateAngle*Math.PI/180) + (self.y3-self.y0)*Math.cos(self.rotateAngle*Math.PI/180);
+            self.posx4 = self.transX + self.x0 + (self.x4-self.x0)*Math.cos(self.rotateAngle*Math.PI/180) - (self.y4-self.y0)*Math.sin(self.rotateAngle*Math.PI/180);
+            self.posy4 = self.transY + self.y0 + (self.x4-self.x0)*Math.sin(self.rotateAngle*Math.PI/180) + (self.y4-self.y0)*Math.cos(self.rotateAngle*Math.PI/180);
+            self.posx5 = self.transX + self.x0 + (self.x5-self.x0)*Math.cos(self.rotateAngle*Math.PI/180) - (self.y5-self.y0)*Math.sin(self.rotateAngle*Math.PI/180);
+            self.posy5 = self.transY + self.y0 + (self.x5-self.x0)*Math.sin(self.rotateAngle*Math.PI/180) + (self.y5-self.y0)*Math.cos(self.rotateAngle*Math.PI/180);
+
+            //массивы X и Y координат вершин
             
+            //для треугольника
+            if (self.type === 3) {
+                self.arrPosX = [self.posx0, self.posx1, self.posx2];
+                self.arrPosY = [self.posy0, self.posy1, self.posy2];
+            }
+
+            //для четырехугольника
+            else if (self.type === 4) {
+                self.arrPosX = [self.posx0, self.posx1, self.posx2, self.posx3];
+                self.arrPosY = [self.posy0, self.posy1, self.posy2, self.posy3];
+            }
+
+            //для шестиугольника
+            else if (self.type === 6) {
+                self.arrPosX = [self.posx0, self.posx1, self.posx2, self.posx3, self.posx4, self.posx5];
+                self.arrPosY = [self.posy0, self.posy1, self.posy2, self.posy3, self.posy4, self.posy5];
+            }
+            
+            //создание хэша с информацией о фигуре для передачи в массив фиксированных фигур
+            //ключ - id, значение - массив с координатами, тип фигуры и ее площадь
+            self.arrInfo = self.arrPosX.concat(self.arrPosY);
+            self.arrInfo.push(self.type);
+            self.arrInfo.push(self.area);
+
+            //вызов функции проверки возможности фиксирования в пустых квадратах
+            checkPos();
+
+            //описание функции
+            function checkPos() {
+                $.ajax("json/squares.json",
+                    {   type:'GET', 
+                        dataType:'json', 
+                        success: function (data) {
+                            useDataToCheckPos(data);    
+                        },
+                        error:errorHandler }
+                );
+            }
+
+            function errorHandler(jqXHR,statusStr,errorStr) {
+                    alert(statusStr+' '+errorStr);
+            }
+
+            //проверка помещается ли фигура в квадрат
+            function useDataToCheckPos(arr) {
+                for (var i=0; i<arr.length; i++){
+                    //по x-координатам   
+                    function checkPosX(element, index, array){
+                        if (element>arr[i][0] && element<arr[i][2]) {
+                            return true;
+                        }
+                        else return false;
+                    }
+                    //по y-координатам 
+                    function checkPosY(element, index, array){
+                        if (element>arr[i][1] && element<arr[i][3]) {
+                            return true;
+                        }
+                        else return false;
+                    }
+                    //если проверка успешна   
+                    if ((self.arrPosX.every(checkPosX)) && (self.arrPosY.every(checkPosY))){
+                        if (Object.keys(fixedElemArr[i]).length === 0) {
+                            self.isfixed = true;                            
+                            self.ismoveable = false;
+                            self.fixView();
+                            fixedElemArr[i][self.id]=self.arrInfo;    
+                        }
+                        else {
+                            console.log('что-то уже успели зафиксировать');
+                                for (var key in fixedElemArr[i]){
+                                    var infoArr = fixedElemArr[i][key];
+
+                                    //проверка пересечения фигур в одном квадрате
+                                    //(infoArr - массив координат фигуры с которой проверяем пересечение)
+                                    //(arrInfo - массив координат фигуры, которую проверяем на пересечение)
+                                    //с треугольником
+                                    if (infoArr[infoArr.length-2] === 3) {
+                                        var x1=infoArr[0];
+                                        var x2=infoArr[1];
+                                        var x3=infoArr[2];
+                                        var y1=infoArr[3];
+                                        var y2=infoArr[4];
+                                        var y3=infoArr[5];
+                                        var area = infoArr[infoArr.length-1];
+                                        var sumAreas =[];
+                                        for (var j=0; j<self.arrPosX.length; j++) {
+                                            sumAreas[j]=
+                                                calculateTriangleArea(self.arrInfo[j],x1,x2,self.arrInfo[j+3],y1,y2)+
+                                                calculateTriangleArea(self.arrInfo[j],x2,x3,self.arrInfo[j+3],y2,y3)+
+                                                calculateTriangleArea(self.arrInfo[j],x3,x1,self.arrInfo[j+3],y3,y1); 
+                                        }
+                                    }
+                                    
+                                    //с четырехугольником
+                                    if (infoArr[infoArr.length-2] === 4) {
+                                        var x1=infoArr[0];
+                                        var x2=infoArr[1];
+                                        var x3=infoArr[2];
+                                        var x4=infoArr[3];
+                                        var y1=infoArr[4];
+                                        var y2=infoArr[5];
+                                        var y3=infoArr[6];
+                                        var y4=infoArr[7];
+                                        var area = infoArr[infoArr.length-1];
+                                        var sumAreas =[];
+                                        for (var j=0; j<self.arrPosX.length; j++) {
+                                            sumAreas[j]=
+                                                calculateTriangleArea(self.arrInfo[j],x1,x2,self.arrInfo[j+4],y1,y2)+
+                                                calculateTriangleArea(self.arrInfo[j],x2,x3,self.arrInfo[j+4],y2,y3)+
+                                                calculateTriangleArea(self.arrInfo[j],x3,x4,self.arrInfo[j+4],y3,y4)+
+                                                calculateTriangleArea(self.arrInfo[j],x4,x1,self.arrInfo[j+4],y4,y1); 
+                                        }
+                                    }
+
+                                    //с шестиугольником
+                                    if (infoArr[infoArr.length-2] === 6) {
+                                        var x1=infoArr[0];
+                                        var x2=infoArr[1];
+                                        var x3=infoArr[2];
+                                        var x4=infoArr[3];
+                                        var x5=infoArr[4];
+                                        var x6=infoArr[5];
+                                        var y1=infoArr[6];
+                                        var y2=infoArr[7];
+                                        var y3=infoArr[8];
+                                        var y4=infoArr[9];
+                                        var y5=infoArr[10];
+                                        var y6=infoArr[11];
+                                        var area = infoArr[infoArr.length-1];
+                                        var sumAreas =[];
+                                        for (var j=0; j<self.arrPosX.length; j++) {
+                                            sumAreas[j]=
+                                                calculateTriangleArea(self.arrInfo[j],x1,x2,self.arrInfo[j+6],y1,y2)+
+                                                calculateTriangleArea(self.arrInfo[j],x2,x3,self.arrInfo[j+6],y2,y3)+
+                                                calculateTriangleArea(self.arrInfo[j],x3,x4,self.arrInfo[j+6],y3,y4)+
+                                                calculateTriangleArea(self.arrInfo[j],x4,x5,self.arrInfo[j+6],y4,y5)+ 
+                                                calculateTriangleArea(self.arrInfo[j],x5,x6,self.arrInfo[j+6],y5,y6)+
+                                                calculateTriangleArea(self.arrInfo[j],x6,x1,self.arrInfo[j+6],y6,y1); 
+                                        }
+                                    }
+
+                                        function checkSum(element, index, array){
+                                            if (element === area) {
+                                                return true;
+                                            }
+                                            else return false;
+                                        }
+                                        //если хоть одна вершина пересекает зафиксированную фигуру, то фиксировать нельзя 
+                                        if (sumAreas.some(checkSum) === true) {
+                                            console.log('нельзя зафиксировать фигуру в этом месте');   
+                                        }
+
+                                        else {
+                                            self.isfixed = true;
+                                            self.ismoveable = false;
+                                            self.fixView();
+                                            fixedElemArr[i][self.id]=self.arrInfo;                                            
+                                        }
+                                }                       
+                            function calculateTriangleArea(x1,x2,x3,y1,y2,y3) {
+                                var a = Math.abs(x1*(y2-y3)+x2*(y3-y1)+x3*(y1-y2))/2;
+                                return a;
+                            }   
+                        } 
+                        break;  
+                    }
+                    else {
+                        console.log('нельзя зафиксировать эту фигуру в этом месте');
+                        self.forbidfixView();
+                    }
+                }
+            }
         }
         else {
             EO=EO||window.event;
@@ -273,226 +459,6 @@ function PartModel(level, type, number, x0, y0, x1, y1, x2, y2, x3, y3, x4, y4, 
         }
     }
 
-     //с клавиатуры
-     self.fixByKey = function(){
-        if (self.isfixed == false){
-            self.getCurrentViewData();
-            self.check();
-
-        }
-        else {
-            for (var k=0; k<fixedElemArr.length; k++) {
-                if (self.id in fixedElemArr[k]) {
-                    delete fixedElemArr[k][unfixedpartId];
-                }
-            }
-            self.isfixed = false;
-            self.ismoveable = true;
-            self.unfixView();    
-        }
-     }
-
-    function checkStep1() {
-        
-    }
-
-    //описание функции проверок: 
-    //1) расположена ли фигура внутри пустого квадрата и 
-    //2) не пересекает уже зафиксированные там фигуры
-    self.check = function() {
-        //пересчет положения координат вершин (т.е. с учетом того, что фигуру вращали и перетаскивали)
-        self.posx0 = self.transX + self.x0;
-        self.posy0 = self.transY + self.y0;
-        self.posx1 = self.transX + self.x0 + (self.x1-self.x0)*Math.cos(self.rotateAngle*Math.PI/180) - (self.y1-self.y0)*Math.sin(self.rotateAngle*Math.PI/180);
-        self.posy1 = self.transY + self.y0 + (self.x1-self.x0)*Math.sin(self.rotateAngle*Math.PI/180) + (self.y1-self.y0)*Math.cos(self.rotateAngle*Math.PI/180);
-        self.posx2 = self.transX + self.x0 + (self.x2-self.x0)*Math.cos(self.rotateAngle*Math.PI/180) - (self.y2-self.y0)*Math.sin(self.rotateAngle*Math.PI/180);
-        self.posy2 = self.transY + self.y0 + (self.x2-self.x0)*Math.sin(self.rotateAngle*Math.PI/180) + (self.y2-self.y0)*Math.cos(self.rotateAngle*Math.PI/180);
-        self.posx3 = self.transX + self.x0 + (self.x3-self.x0)*Math.cos(self.rotateAngle*Math.PI/180) - (self.y3-self.y0)*Math.sin(self.rotateAngle*Math.PI/180);
-        self.posy3 = self.transY + self.y0 + (self.x3-self.x0)*Math.sin(self.rotateAngle*Math.PI/180) + (self.y3-self.y0)*Math.cos(self.rotateAngle*Math.PI/180);
-        self.posx4 = self.transX + self.x0 + (self.x4-self.x0)*Math.cos(self.rotateAngle*Math.PI/180) - (self.y4-self.y0)*Math.sin(self.rotateAngle*Math.PI/180);
-        self.posy4 = self.transY + self.y0 + (self.x4-self.x0)*Math.sin(self.rotateAngle*Math.PI/180) + (self.y4-self.y0)*Math.cos(self.rotateAngle*Math.PI/180);
-        self.posx5 = self.transX + self.x0 + (self.x5-self.x0)*Math.cos(self.rotateAngle*Math.PI/180) - (self.y5-self.y0)*Math.sin(self.rotateAngle*Math.PI/180);
-        self.posy5 = self.transY + self.y0 + (self.x5-self.x0)*Math.sin(self.rotateAngle*Math.PI/180) + (self.y5-self.y0)*Math.cos(self.rotateAngle*Math.PI/180);
-
-        //массивы X и Y координат вершин
-        
-        //для треугольника
-        if (self.type === 3) {
-            self.arrPosX = [self.posx0, self.posx1, self.posx2];
-            self.arrPosY = [self.posy0, self.posy1, self.posy2];
-        }
-
-        //для четырехугольника
-        else if (self.type === 4) {
-            self.arrPosX = [self.posx0, self.posx1, self.posx2, self.posx3];
-            self.arrPosY = [self.posy0, self.posy1, self.posy2, self.posy3];
-        }
-
-        //для шестиугольника
-        else if (self.type === 6) {
-            self.arrPosX = [self.posx0, self.posx1, self.posx2, self.posx3, self.posx4, self.posx5];
-            self.arrPosY = [self.posy0, self.posy1, self.posy2, self.posy3, self.posy4, self.posy5];
-        }
-        
-        //создание хэша с информацией о фигуре для передачи в массив фиксированных фигур
-        //ключ - id, значение - массив с координатами, тип фигуры и ее площадь
-        self.arrInfo = self.arrPosX.concat(self.arrPosY);
-        self.arrInfo.push(self.type);
-        self.arrInfo.push(self.area);
-
-        //вызов функции проверки возможности фиксирования в пустых квадратах
-        checkPos();
-
-        //описание функции
-        function checkPos() {
-            $.ajax("json/squares.json",
-                {   type:'GET', 
-                    dataType:'json', 
-                    success: function (data) {
-                        useDataToCheckPos(data);    
-                    },
-                    error:errorHandler }
-            );
-        }
-
-        function errorHandler(jqXHR,statusStr,errorStr) {
-                alert(statusStr+' '+errorStr);
-        }
-
-        //проверка помещается ли фигура в квадрат
-        function useDataToCheckPos(arr) {
-            for (var i=0; i<arr.length; i++){
-                //по x-координатам   
-                function checkPosX(element, index, array){
-                    if (element>arr[i][0] && element<arr[i][2]) {
-                        return true;
-                    }
-                    else return false;
-                }
-                //по y-координатам 
-                function checkPosY(element, index, array){
-                    if (element>arr[i][1] && element<arr[i][3]) {
-                        return true;
-                    }
-                    else return false;
-                }
-                //конец первого блока return (self.arrPosX.every(checkPosX)) && (self.arrPosY.every(checkPosY))
-                //если проверка успешна   
-                if ((self.arrPosX.every(checkPosX)) && (self.arrPosY.every(checkPosY))){
-                    if (Object.keys(fixedElemArr[i]).length === 0) {
-                        self.isfixed = true;                            
-                        self.ismoveable = false;
-                        self.fixView();
-                        fixedElemArr[i][self.id]=self.arrInfo;    
-                    }
-                    else {
-                        console.log('что-то уже успели зафиксировать');
-                        //загружаю второй блок проверки crossing
-                            for (var key in fixedElemArr[i]){
-                                var infoArr = fixedElemArr[i][key];
-
-                                //проверка пересечения фигур в одном квадрате
-                                //(infoArr - массив координат фигуры с которой проверяем пересечение)
-                                //(arrInfo - массив координат фигуры, которую проверяем на пересечение)
-                                //с треугольником
-                                if (infoArr[infoArr.length-2] === 3) {
-                                    var x1=infoArr[0];
-                                    var x2=infoArr[1];
-                                    var x3=infoArr[2];
-                                    var y1=infoArr[3];
-                                    var y2=infoArr[4];
-                                    var y3=infoArr[5];
-                                    var area = infoArr[infoArr.length-1];
-                                    var sumAreas =[];
-                                    for (var j=0; j<self.arrPosX.length; j++) {
-                                        sumAreas[j]=
-                                            calculateTriangleArea(self.arrInfo[j],x1,x2,self.arrInfo[j+3],y1,y2)+
-                                            calculateTriangleArea(self.arrInfo[j],x2,x3,self.arrInfo[j+3],y2,y3)+
-                                            calculateTriangleArea(self.arrInfo[j],x3,x1,self.arrInfo[j+3],y3,y1); 
-                                    }
-                                }
-                                
-                                //с четырехугольником
-                                if (infoArr[infoArr.length-2] === 4) {
-                                    var x1=infoArr[0];
-                                    var x2=infoArr[1];
-                                    var x3=infoArr[2];
-                                    var x4=infoArr[3];
-                                    var y1=infoArr[4];
-                                    var y2=infoArr[5];
-                                    var y3=infoArr[6];
-                                    var y4=infoArr[7];
-                                    var area = infoArr[infoArr.length-1];
-                                    var sumAreas =[];
-                                    for (var j=0; j<self.arrPosX.length; j++) {
-                                        sumAreas[j]=
-                                            calculateTriangleArea(self.arrInfo[j],x1,x2,self.arrInfo[j+4],y1,y2)+
-                                            calculateTriangleArea(self.arrInfo[j],x2,x3,self.arrInfo[j+4],y2,y3)+
-                                            calculateTriangleArea(self.arrInfo[j],x3,x4,self.arrInfo[j+4],y3,y4)+
-                                            calculateTriangleArea(self.arrInfo[j],x4,x1,self.arrInfo[j+4],y4,y1); 
-                                    }
-                                }
-
-                                //с шестиугольником
-                                if (infoArr[infoArr.length-2] === 6) {
-                                    var x1=infoArr[0];
-                                    var x2=infoArr[1];
-                                    var x3=infoArr[2];
-                                    var x4=infoArr[3];
-                                    var x5=infoArr[4];
-                                    var x6=infoArr[5];
-                                    var y1=infoArr[6];
-                                    var y2=infoArr[7];
-                                    var y3=infoArr[8];
-                                    var y4=infoArr[9];
-                                    var y5=infoArr[10];
-                                    var y6=infoArr[11];
-                                    var area = infoArr[infoArr.length-1];
-                                    var sumAreas =[];
-                                    for (var j=0; j<self.arrPosX.length; j++) {
-                                        sumAreas[j]=
-                                            calculateTriangleArea(self.arrInfo[j],x1,x2,self.arrInfo[j+6],y1,y2)+
-                                            calculateTriangleArea(self.arrInfo[j],x2,x3,self.arrInfo[j+6],y2,y3)+
-                                            calculateTriangleArea(self.arrInfo[j],x3,x4,self.arrInfo[j+6],y3,y4)+
-                                            calculateTriangleArea(self.arrInfo[j],x4,x5,self.arrInfo[j+6],y4,y5)+ 
-                                            calculateTriangleArea(self.arrInfo[j],x5,x6,self.arrInfo[j+6],y5,y6)+
-                                            calculateTriangleArea(self.arrInfo[j],x6,x1,self.arrInfo[j+6],y6,y1); 
-                                    }
-                                }
-
-                                    function checkSum(element, index, array){
-                                        if (element === area) {
-                                            return true;
-                                        }
-                                        else return false;
-                                    }
-                                    //если хоть одна вершина пересекает зафиксированную фигуру, то фиксировать нельзя 
-                                    //конец второго блока проверки return sumAreas.some(checkSum)
-                                    if (sumAreas.some(checkSum) === true) {
-                                        console.log('нельзя зафиксировать фигуру в этом месте');   
-                                    }
-
-                                    else {
-                                        self.isfixed = true;
-                                        self.ismoveable = false;
-                                        self.fixView();
-                                        fixedElemArr[i][self.id]=self.arrInfo;                                            
-                                    }
-                            }                       
-                        function calculateTriangleArea(x1,x2,x3,y1,y2,y3) {
-                            var a = Math.abs(x1*(y2-y3)+x2*(y3-y1)+x3*(y1-y2))/2;
-                            return a;
-                        }   
-                    } 
-                    break;  
-                }
-                else {
-                    console.log('нельзя зафиксировать эту фигуру в этом месте');
-                    self.forbidfixView();
-                }
-            }
-        }
-    }
 
     self.endMove = function(EO) {
         EO=EO||window.event;
