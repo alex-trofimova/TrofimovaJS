@@ -12,9 +12,78 @@
          width="800" height="800"
          xmlns="http://www.w3.org/2000/svg"
          id="svg1">
-         <polygon points="50 50, 300 300, 50 300" fill="red" id="triangle" cursor = 'default' transform ="translate (200 200) rotate (-45 0 0)" tabindex="0"/>
-         <circle cx="100" cy="100" r="100" fill="#fcca66" id="circle" cursor='default' transform ="translate (200 200) rotate (45)" tabindex="0"/>
+         <!-- <polygon points="50 50, 300 300, 50 300" fill="red" id="triangle" cursor = 'default' transform ="translate (200 200) rotate (-45 0 0)"/>
+         <circle cx="100" cy="100" r="100" fill="#fcca66" id="circle" cursor='default' transform ="translate (200 200) rotate (45)"> -->
+            <circle cx="200" cy="100" r="100" fill="#fcca66" class="circle" id="circle1"/>
+            <circle cx="340" cy="240" r="50" fill="red" class="circle" id="circle2"/>
+            <circle cx="500" cy="200" r="80" fill="blue" class="circle" id="circle3"/>
+            <circle cx="400" cy="400" r="100" fill="green" class="circle" id="circle4"/>
         </svg>    
-    </div>   
+    </div>
+<script>
+"use strict";
+
+    window.addEventListener('keypress',chooseElem, false);
+
+    //подписываюсь на события клавиатуры
+    //document.addEventListener("keydown", keyDownControl, false);
+    //document.addEventListener("keyup", keyUpControl, false);
+
+    var i=1;
+
+    function chooseElem(EO){
+        var code = EO.charCode || EO.which;
+        var elems = document.getElementsByClassName('circle');
+        if (code === 112) {
+            event.preventDefault();
+            if (i<elems.length) {
+                elems[i].setAttribute('stroke', 'black');
+                elems[i].classList.add('chosen');
+                var elemId = elems[i].getAttribute('id');
+                
+                //подписываюсь на события клавиатуры
+                document.addEventListener("keydown", keyDownControl, false);
+                document.addEventListener("keyup", keyUpControl, false);
+
+                function keyDownControl(e) {
+                    if(e.keyCode === 38) {
+                       console.log('эелемент ' +elemId+ ' сдвинулся вверх')
+                    }
+                }
+
+                function keyUpControl(e) {
+                    if(e.keyCode === 38) {
+                       console.log('эелемент ' +elemId+ ' уже не двигается вверх')
+                    }
+                }
+
+
+                elems[i-1].setAttribute('stroke', 'none');
+                elems[i-1].classList.remove('chosen');
+                
+                console.log('p нажат');
+                console.log(i);
+                console.log(elems[i]);
+                i++;
+                
+                var chosenElem = document.getElementsByClassName('chosen');
+                console.log(chosenElem[0].getAttribute('cx'));
+            }
+            else {
+                elems[elems.length-1].setAttribute('stroke', 'none');
+                elems[elems.length-1].classList.remove('chosen');
+                elems[0].setAttribute('stroke', 'black');
+                elems[0].classList.add('chosen');
+                console.log(elems[0]);
+                i=1;   
+            }
+        }
+    }
+
+    
+
+
+
+</script>   
 </body>
 </html>
