@@ -126,6 +126,12 @@ function PartModel(level, type, number, color_number, x0, y0, x1, y1, x2, y2, x3
         }    
     }
 
+    self.successView=function(){
+        if (myView) {
+            myView.showSuccess(); 
+        }
+    }
+
     //получение значений параметров текущего представления (View) 
     self.getCurrentViewData=function() {
         if (myView) {
@@ -133,168 +139,7 @@ function PartModel(level, type, number, color_number, x0, y0, x1, y1, x2, y2, x3
         }    
     }
 
-   //ПОДГОТОВКА К ПЕРЕМЕЩЕНИЮ И ВРАЩЕНИЮ ФИГУРЫ
-    var pressShiftLeft = 0;
-    var pressShiftTop = 0;
-
-    // ввожу переменную для объекта перемещения (пока здесь ничего нет)
-    var draggedPart=null;
-
-    self.startMoveAndRotate =function(EO) {
-
-        EO=EO||window.event;
-
-        EO.preventDefault();
-
-            draggedPart=EO.target;
-
-            draggedPart.setAttribute('cursor', 'grab');
-
-            var partArr = draggedPart.getAttribute('transform').replace(/[()]/g, '').split(" ");
-            self.transX = parseFloat(partArr[1]);
-            self.transY = parseFloat(partArr[2]);
-            self.rotateAngle = parseFloat(partArr[4]);
-            self.rotateOriginX = parseFloat(partArr[5]);
-            self.rotateOriginY = parseFloat(partArr[6]);
-
-            pressShiftLeft = EO.clientX - self.transX;
-            pressShiftTop = EO.clientY - self.transY;       
-
-    }
-
-    //ПЕРЕМЕЩЕНИЕ ФИГУРЫ
-    //мышкой
-    self.move =function(EO) {
-        if (self.ismoveable) {
-            EO=EO||window.event;
-
-            EO.preventDefault();
-
-            draggedPart=EO.target;
-
-            draggedPart.setAttribute('cursor', 'grabbing');
-
-            self.transX = EO.pageX - pressShiftLeft;
-            self.transY = EO.pageY - pressShiftTop;
-
-            self.updateView();
-        }
-        else return;
-        
-    }
-    //с клавиатуры
-    self.moveUp = function(){
-        if (self.ismoveable) {
-            self.transY -= self.stepmove;
-            self.updateView();
-        }
-        else return;
-    }
-
-    self.moveDown = function(){
-        if (self.ismoveable) {
-            self.transY += self.stepmove;
-            self.updateView();
-        }
-        else return;
-    }
-
-    self.moveLeft = function(){
-        if (self.ismoveable) {
-            self.transX -= self.stepmove;
-            self.updateView();
-        }
-        else return;
-    }
-
-    self.moveRight = function(){
-        if (self.ismoveable) {
-            self.transX += self.stepmove;
-            self.updateView();
-        }
-        else return;
-    }
-
-    //ВРАЩЕНИЕ ФИГУРЫ
-    self.rotate =function(EO) {
-        if (self.ismoveable) {
-            EO=EO||window.event;
-
-            EO.preventDefault();
-
-            self.rotateAngle -= 45; //шаг поворота - потом вынесу в константы
-            self.updateView();
-        }
-        else return;          
-    }
-
-    //ФИКСИРОВАНИЕ ФИГУРЫ
-    self.fix =function(EO) {
-
-        if (self.isfixed == false) {
-
-            EO=EO||window.event;
-
-            EO.preventDefault();
-
-            var fixedPart=EO.target;
-            
-            //получение текущих параметров фигуры   
-            var partArr = fixedPart.getAttribute('transform').replace(/[()]/g, '').split(" ");
-            //var partArr=self.getCurrentViewData(EO);
-            self.transX = parseFloat(partArr[1]);
-            self.transY = parseFloat(partArr[2]);
-            self.rotateAngle = parseFloat(partArr[4]);
-            self.rotateOriginX = parseFloat(partArr[5]);
-            self.rotateOriginY = parseFloat(partArr[6]);
-
-            self.check();
-        }
-
-        else {
-            EO=EO||window.event;
-
-            EO.preventDefault();
-
-            var unfixedPart=EO.target;
-            var unfixedpartId = unfixedPart.getAttribute('id');
-            
-            for (var k=0; k<fixedElemArr.length; k++) {
-                if (unfixedpartId in fixedElemArr[k]) {
-                    delete fixedElemArr[k][unfixedpartId];
-                    fixedElemAreaTotal-=self.area;
-                }
-            }
-            self.isfixed = false;
-            self.ismoveable = true;
-            self.unfixView();            
-        }
-    }
-
-     //с клавиатуры
-     self.fixByKey = function(){
-        if (self.isfixed == false){
-            self.getCurrentViewData();
-            self.check();
-
-        }
-        else {
-            for (var k=0; k<fixedElemArr.length; k++) {
-                if (self.id in fixedElemArr[k]) {
-                    delete fixedElemArr[k][self.id];
-                    fixedElemAreaTotal-=self.area;
-                }
-            }
-            self.isfixed = false;
-            self.ismoveable = true;
-            self.unfixView();    
-        }
-     }
-
-    //описание функции проверок: 
-    //1) расположена ли фигура внутри пустого квадрата и 
-    //2) не пересекает уже зафиксированные там фигуры
-    self.check = function(){
+    self.getInfo = function () {
         //пересчет положения координат вершин (т.е. с учетом того, что фигуру вращали и перетаскивали)
         self.posx0 = self.transX + self.x0;
         self.posy0 = self.transY + self.y0;
@@ -329,11 +174,265 @@ function PartModel(level, type, number, color_number, x0, y0, x1, y1, x2, y2, x3
             self.arrPosY = [self.posy0, self.posy1, self.posy2, self.posy3, self.posy4, self.posy5];
         }
         
-        //создание хэша с информацией о фигуре для передачи в массив фиксированных фигур
+        //создание хэша с информацией о фигуре для передачи в массив 
+        //зафиксированных в конкретном квадрате фигур
         //ключ - id, значение - массив с координатами, тип фигуры и ее площадь
         self.arrInfo = self.arrPosX.concat(self.arrPosY);
+        self.arrInfo.push(self.colorNumber);
         self.arrInfo.push(self.type);
         self.arrInfo.push(self.area);
+    }
+
+   //ПОДГОТОВКА К ПЕРЕМЕЩЕНИЮ И ВРАЩЕНИЮ ФИГУРЫ
+    var pressShiftLeft = 0;
+    var pressShiftTop = 0;
+
+    // ввожу переменную для объекта перемещения (пока здесь ничего нет)
+    var draggedPart=null;
+
+    self.startMoveAndRotate =function(EO) {
+
+        EO=EO||window.event;
+
+        EO.preventDefault();
+
+            draggedPart=EO.target;
+
+            draggedPart.setAttribute('cursor', 'grab');
+
+            var partArr = draggedPart.getAttribute('transform').replace(/[()]/g, '').split(" ");
+            self.transX = parseFloat(partArr[1]);
+            self.transY = parseFloat(partArr[2]);
+            self.rotateAngle = parseFloat(partArr[4]);
+            self.rotateOriginX = parseFloat(partArr[5]);
+            self.rotateOriginY = parseFloat(partArr[6]);
+
+            pressShiftLeft = EO.clientX - self.transX;
+            pressShiftTop = EO.clientY - self.transY;       
+
+    }
+
+    //функции проверки выхода фигуры за края игрового поля (svg тега)
+    function checkRestrictXleft(element, index, array){
+        if (element <0) {
+            return true;
+        }
+        else return false;
+    }
+
+    function checkRestrictXright(element, index, array){
+        if (element >1200) {//внести как ширину контейнера
+            return true;
+        }
+        else return false;
+    }
+
+    function checkRestrictYtop(element, index, array){
+        if (element <0) {
+            return true;
+        }
+        else return false;
+    }
+
+    function checkRestrictYbottom(element, index, array){
+        if (element >480) {
+            return true;
+        }
+        else return false;
+    }
+
+    //ПЕРЕМЕЩЕНИЕ ФИГУРЫ
+    //мышкой
+    self.move =function(EO) {
+        if (self.ismoveable) {
+            EO=EO||window.event;
+
+            EO.preventDefault();
+
+            draggedPart=EO.target;
+
+            draggedPart.setAttribute('cursor', 'grabbing');
+
+            self.transX = EO.pageX - pressShiftLeft;
+            self.transY = EO.pageY - pressShiftTop;
+
+            self.getInfo();
+            var svgCont = document.getElementById('svgcont');
+            
+            //если хоть одна вершина заходит за края
+            if ((self.arrPosX.some(checkRestrictXleft) === true) || 
+                (self.arrPosX.some(checkRestrictXright) === true) ||
+                (self.arrPosY.some(checkRestrictYtop) === true) ||
+                (self.arrPosY.some(checkRestrictYbottom) === true)
+               ) {
+                console.log('куда это вы??!!');
+                return;   
+            }         
+            else {
+                self.updateView();
+            }       
+        }
+        else return;
+        
+    }
+
+    
+    //с клавиатуры
+    self.moveUp = function(){
+        if (self.ismoveable) {
+            self.transY -= self.stepmove;
+            self.getInfo();
+            if (self.arrPosY.some(checkRestrictYtop) === true){
+                self.transY += self.stepmove;
+                return;
+            }
+            else {
+                self.updateView();
+            }
+        }
+        else return;
+    }
+
+    self.moveDown = function(){
+        if (self.ismoveable) {
+            self.transY += self.stepmove;
+            self.getInfo();
+            if (self.arrPosY.some(checkRestrictYbottom) === true){
+                self.transY -= self.stepmove;
+                return;
+            }
+            else {
+                self.updateView();
+            }
+        }
+        else return;
+    }
+
+    self.moveLeft = function(){
+        if (self.ismoveable) {
+            self.transX -= self.stepmove;
+            self.getInfo();
+            if (self.arrPosX.some(checkRestrictXleft) === true){
+                self.transX += self.stepmove;
+                return;
+            }
+            else {
+                self.updateView();
+            }
+            
+        }
+        else return;
+    }
+
+    self.moveRight = function(){
+        if (self.ismoveable) {
+            self.transX += self.stepmove;
+            self.getInfo();
+            if (self.arrPosX.some(checkRestrictXright) === true){
+                self.transX -= self.stepmove;
+                return;
+            }
+            else {
+                self.updateView();
+            }
+        }
+        else return;
+    }
+
+    //ВРАЩЕНИЕ ФИГУРЫ
+    self.rotate =function(EO) {
+        if (self.ismoveable) {
+            EO=EO||window.event;
+
+            EO.preventDefault();
+
+            self.rotateAngle -= 45; //шаг поворота - потом вынесу в константы
+            self.updateView();
+        }
+        else return;          
+    }
+
+
+    //ФИКСИРОВАНИЕ ФИГУРЫ
+    //мышкой (правая кнопка)
+    self.fix =function(EO) {
+
+        if (self.isfixed == false) {
+
+            EO=EO||window.event;
+
+            EO.preventDefault();
+
+            var fixedPart=EO.target;
+            
+            //получение текущих параметров фигуры   
+            var partArr = fixedPart.getAttribute('transform').replace(/[()]/g, '').split(" ");
+            self.transX = parseFloat(partArr[1]);
+            self.transY = parseFloat(partArr[2]);
+            self.rotateAngle = parseFloat(partArr[4]);
+            self.rotateOriginX = parseFloat(partArr[5]);
+            self.rotateOriginY = parseFloat(partArr[6]);
+
+            self.check();
+        }
+
+        else {
+            EO=EO||window.event;
+
+            EO.preventDefault();
+
+            var unfixedPart=EO.target;
+            var unfixedpartId = unfixedPart.getAttribute('id');
+            
+             
+            
+            for (var k=0; k<fixedElemArr.length; k++) {
+                if (unfixedpartId in fixedElemArr[k]) {
+                    delete fixedElemArr[k][unfixedpartId];
+                    console.log(fixedElemArr);
+                    console.log(fixedElemArr[k]);
+                    // if(Object.keys(fixedElemArr[k]).length === 1) {
+                    //     delete fixedElemArr[k]['color'];//"очищаю" цвет этого
+                    //     console.log(fixedElemArr[k]);
+                    // }                    
+                    fixedElemAreaTotal-=self.area;
+                }
+            }
+            self.isfixed = false;
+            self.ismoveable = true;
+            self.unfixView();
+            
+            
+        }
+    }
+
+     //с клавиатуры
+     self.fixByKey = function(){
+        if (self.isfixed == false){
+            self.getCurrentViewData();
+            self.check();
+
+        }
+        else {
+            for (var k=0; k<fixedElemArr.length; k++) {
+                if (self.id in fixedElemArr[k]) {
+                    delete fixedElemArr[k][self.id];
+                    fixedElemAreaTotal-=self.area;
+                }
+            }
+            self.isfixed = false;
+            self.ismoveable = true;
+            self.unfixView();    
+        }
+     }
+
+    //описание функции проверок: 
+    //1) расположена ли фигура внутри пустого квадрата и 
+    //2) не пересекает уже зафиксированные там фигуры
+    self.check = function(){
+
+        //вызов функции получения массива данных фигуры
+        self.getInfo();
 
         //вызов функции проверки возможности фиксирования в пустых квадратах
         checkPos();
@@ -377,18 +476,25 @@ function PartModel(level, type, number, color_number, x0, y0, x1, y1, x2, y2, x3
                         self.isfixed = true;                            
                         self.ismoveable = false;
                         self.fixView();
+                        fixedElemArr[i]['color']=self.colorNumber;
                         fixedElemArr[i][self.id]=self.arrInfo;
-                        fixedElemAreaTotal+=self.area;    
+                        fixedElemAreaTotal+=self.area;
+                        // console.log(fixedElemArr);
+                        console.log(self.area);
+                        console.log('первый раз');
+                        console.log(fixedElemAreaTotal);
+
                     }
                     else {
                         console.log('что-то уже успели зафиксировать');
+                        if (self.colorNumber === fixedElemArr[i]['color']) {
+                            delete fixedElemArr[i]['color'];
                             for (var key in fixedElemArr[i]){
-                                var infoArr = fixedElemArr[i][key];
-
+                                    var infoArr = fixedElemArr[i][key];
                                 //проверка пересечения фигур в одном квадрате
                                 //(infoArr - массив координат фигуры с которой проверяем пересечение)
                                 //(arrInfo - массив координат фигуры, которую проверяем на пересечение)
-                                //с треугольником
+                                //с треугольником                                    
                                 if (infoArr[infoArr.length-2] === 3) {
                                     var x1=infoArr[0];
                                     var x2=infoArr[1];
@@ -405,84 +511,91 @@ function PartModel(level, type, number, color_number, x0, y0, x1, y1, x2, y2, x3
                                             calculateTriangleArea(self.arrInfo[j],x3,x1,self.arrInfo[j+3],y3,y1); 
                                     }
                                 }
-                                
+                                                    
                                 //с четырехугольником
-                                if (infoArr[infoArr.length-2] === 4) {
-                                    var x1=infoArr[0];
-                                    var x2=infoArr[1];
-                                    var x3=infoArr[2];
-                                    var x4=infoArr[3];
-                                    var y1=infoArr[4];
-                                    var y2=infoArr[5];
-                                    var y3=infoArr[6];
-                                    var y4=infoArr[7];
-                                    var area = infoArr[infoArr.length-1];
-                                    var sumAreas =[];
-                                    for (var j=0; j<self.arrPosX.length; j++) {
-                                        sumAreas[j]=
-                                            calculateTriangleArea(self.arrInfo[j],x1,x2,self.arrInfo[j+4],y1,y2)+
-                                            calculateTriangleArea(self.arrInfo[j],x2,x3,self.arrInfo[j+4],y2,y3)+
-                                            calculateTriangleArea(self.arrInfo[j],x3,x4,self.arrInfo[j+4],y3,y4)+
-                                            calculateTriangleArea(self.arrInfo[j],x4,x1,self.arrInfo[j+4],y4,y1); 
-                                    }
-                                }
-
-                                //с шестиугольником
-                                if (infoArr[infoArr.length-2] === 6) {
-                                    var x1=infoArr[0];
-                                    var x2=infoArr[1];
-                                    var x3=infoArr[2];
-                                    var x4=infoArr[3];
-                                    var x5=infoArr[4];
-                                    var x6=infoArr[5];
-                                    var y1=infoArr[6];
-                                    var y2=infoArr[7];
-                                    var y3=infoArr[8];
-                                    var y4=infoArr[9];
-                                    var y5=infoArr[10];
-                                    var y6=infoArr[11];
-                                    var area = infoArr[infoArr.length-1];
-                                    var sumAreas =[];
-                                    for (var j=0; j<self.arrPosX.length; j++) {
-                                        sumAreas[j]=
-                                            calculateTriangleArea(self.arrInfo[j],x1,x2,self.arrInfo[j+6],y1,y2)+
-                                            calculateTriangleArea(self.arrInfo[j],x2,x3,self.arrInfo[j+6],y2,y3)+
-                                            calculateTriangleArea(self.arrInfo[j],x3,x4,self.arrInfo[j+6],y3,y4)+
-                                            calculateTriangleArea(self.arrInfo[j],x4,x5,self.arrInfo[j+6],y4,y5)+ 
-                                            calculateTriangleArea(self.arrInfo[j],x5,x6,self.arrInfo[j+6],y5,y6)+
-                                            calculateTriangleArea(self.arrInfo[j],x6,x1,self.arrInfo[j+6],y6,y1); 
-                                    }
-                                }
-
-                                    function checkSum(element, index, array){
-                                        if (element === area) {
-                                            return true;
+                                    if (infoArr[infoArr.length-2] === 4) {
+                                        var x1=infoArr[0];
+                                        var x2=infoArr[1];
+                                        var x3=infoArr[2];
+                                        var x4=infoArr[3];
+                                        var y1=infoArr[4];
+                                        var y2=infoArr[5];
+                                        var y3=infoArr[6];
+                                        var y4=infoArr[7];
+                                        var area = infoArr[infoArr.length-1];
+                                        var sumAreas =[];
+                                        for (var j=0; j<self.arrPosX.length; j++) {
+                                            sumAreas[j]=
+                                                calculateTriangleArea(self.arrInfo[j],x1,x2,self.arrInfo[j+4],y1,y2)+
+                                                calculateTriangleArea(self.arrInfo[j],x2,x3,self.arrInfo[j+4],y2,y3)+
+                                                calculateTriangleArea(self.arrInfo[j],x3,x4,self.arrInfo[j+4],y3,y4)+
+                                                calculateTriangleArea(self.arrInfo[j],x4,x1,self.arrInfo[j+4],y4,y1); 
                                         }
-                                        else return false;
-                                    }
-                                    //если хоть одна вершина пересекает зафиксированную фигуру, то фиксировать нельзя 
-                                    if (sumAreas.some(checkSum) === true) {
-                                        console.log('нельзя зафиксировать фигуру в этом месте');   
+                                        console.log(sumAreas);
                                     }
 
-                                    else {
-                                        self.isfixed = true;
-                                        self.ismoveable = false;
-                                        self.fixView();
-                                        fixedElemArr[i][self.id]=self.arrInfo;
-                                        fixedElemAreaTotal+=self.area;
-                                        console.log(fixedElemAreaTotal);
-                                        console.log(typeof(fixedElemAreaTotal));
-                                        //проверка , что уровень пройден! ЗАМЕНИТЬ РЕЗУЛЬТАТ УСПЕХА!
-                                        if (fixedElemAreaTotal===240000){
-                                            alert('УРА!');}                                               
+                                    //с шестиугольником
+                                    if (infoArr[infoArr.length-2] === 6) {
+                                        var x1=infoArr[0];
+                                        var x2=infoArr[1];
+                                        var x3=infoArr[2];
+                                        var x4=infoArr[3];
+                                        var x5=infoArr[4];
+                                        var x6=infoArr[5];
+                                        var y1=infoArr[6];
+                                        var y2=infoArr[7];
+                                        var y3=infoArr[8];
+                                        var y4=infoArr[9];
+                                        var y5=infoArr[10];
+                                        var y6=infoArr[11];
+                                        var area = infoArr[infoArr.length-1];
+                                        var sumAreas =[];
+                                        for (var j=0; j<self.arrPosX.length; j++) {
+                                            sumAreas[j]=
+                                                calculateTriangleArea(self.arrInfo[j],x1,x2,self.arrInfo[j+6],y1,y2)+
+                                                calculateTriangleArea(self.arrInfo[j],x2,x3,self.arrInfo[j+6],y2,y3)+
+                                                calculateTriangleArea(self.arrInfo[j],x3,x4,self.arrInfo[j+6],y3,y4)+
+                                                calculateTriangleArea(self.arrInfo[j],x4,x5,self.arrInfo[j+6],y4,y5)+ 
+                                                calculateTriangleArea(self.arrInfo[j],x5,x6,self.arrInfo[j+6],y5,y6)+
+                                                calculateTriangleArea(self.arrInfo[j],x6,x1,self.arrInfo[j+6],y6,y1); 
+                                            }
                                     }
-                                    
-                            }                       
-                        function calculateTriangleArea(x1,x2,x3,y1,y2,y3) {
-                            var a = Math.abs(x1*(y2-y3)+x2*(y3-y1)+x3*(y1-y2))/2;
-                            return a;
-                        }   
+
+                                    function calculateTriangleArea(x1,x2,x3,y1,y2,y3) {
+                                        var a = Math.abs(x1*(y2-y3)+x2*(y3-y1)+x3*(y1-y2))/2;
+                                        return a;
+                                    } 
+
+                                        function checkSum(element, index, array){
+                                            if (element === area) {
+                                                return true;
+                                            }
+                                            else return false;
+                                        }
+                                        //если хоть одна вершина пересекает зафиксированную фигуру, то фиксировать нельзя 
+                                        if (sumAreas.some(checkSum) === true) {
+                                            console.log('нельзя зафиксировать фигуру в этом месте');
+                                            break;   
+                                        }  
+                            }
+                            self.isfixed = true;
+                            self.ismoveable = false;
+                            self.fixView();
+                            fixedElemArr[i][self.id]=self.arrInfo;
+                            fixedElemArr[i]['color']=self.colorNumber;
+                            fixedElemAreaTotal+=self.area;
+                            console.log('второй раз');
+                            console.log(fixedElemAreaTotal);
+                            //проверка , что уровень пройден! ЗАМЕНИТЬ РЕЗУЛЬТАТ УСПЕХА!
+                            if (fixedElemAreaTotal>240000){//вынести в константы
+                                self.successView();
+                            }
+                            
+                        }
+                        else {
+                            console.log('Фигура не того цвета');
+                            break;
+                        }
                     } 
                     break;  
                 }

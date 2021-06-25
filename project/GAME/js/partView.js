@@ -59,6 +59,7 @@ function PartView(){
 
     self.update = function () {
         var figure = document.getElementById(myModel.id);
+        myField.append(figure);
         figure.setAttribute('transform', "translate ("+myModel.transX+" "+myModel.transY+") rotate ("+myModel.rotateAngle+" "+myModel.rotateOriginX+" "+myModel.rotateOriginY+")");
     }
 
@@ -74,6 +75,7 @@ function PartView(){
         var anim = figure.getElementsByClassName("animation")[0];
         anim.setAttribute('from', "1");
         anim.setAttribute('to', "0.2");
+        fixAudio.play();
         console.log('должна пойти анимация');
         //для клавиатуры
         figure.setAttribute('fill-opacity', '0.2');
@@ -96,6 +98,11 @@ function PartView(){
         var anim = figure.getElementsByClassName("animation")[0];
         anim.setAttribute('from', "1");
         anim.setAttribute('to', "1");
+    }
+
+    self.showSuccess = function () {
+        succesAudio.play();
+        alert('УРА!');
     }
 
 }

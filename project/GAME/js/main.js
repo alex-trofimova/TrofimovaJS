@@ -1,48 +1,3 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Part class creation</title>
-    <style>
-        .game_container {
-            background-color:floralwhite;
-            border: 1px solid green;
-            width: 1200px;
-            height: 540px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-        }
-        #svgcont {
-            width: 1200px;
-            height: 480px;
-            background-color: bisque;
-            border: 1px solid red; 
-        }
-    </style>
-</head>
-<body>
-    <div class="game_container">
-        <svg version="1.1"
-             xmlns="http://www.w3.org/2000/svg"
-             id="svgcont">
-        </svg> 
-    </div>   
-
-<script src="js/partModel.js"></script>
-<script src="js/partView.js"></script>
-<script src="js/partControlMouse.js"></script>
-
-<!--Подключение jquery-->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js" 
-        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" 
-        crossorigin="anonymous">
-</script>
-
-<script>
 "use strict";
 var svgContainer = document.getElementById('svgcont');
 
@@ -88,6 +43,7 @@ elemCont.setAttribute('y', 0);
 elemCont.setAttribute('width', 430);
 elemCont.setAttribute('height', 480);
 elemCont.setAttribute('fill', '#c3c3c3');
+elemCont.setAttribute('id', "base")
 svgContainer.append(elemCont);
 
 //массив с инфо о фиксированных элементах
@@ -105,6 +61,9 @@ console.log(fixedElemArr);
 console.log(fixedElemAreaTotal);
 
 
+
+//ОТРИСОВКА ФИГУР
+
 //ПАЛИТРЫ ЦВЕТОВ
 var paletteArr = [];
 var paletteArr1 = ['#368036', '#003366', '#00bfff', '#b5262b', '#ffba00', '#cd5700'];
@@ -113,7 +72,7 @@ var paletteArr3 = ['#9c6a6a', '#e64823', '#ec6f16', '#ce8d3e', '#f8921d', '#ffca
 
 paletteArr=paletteArr1;
 
-//ОТРИСОВКА ФИГУР
+
 //вызов функции загрузки данных для отрисовки фигур
 loadData();
 
@@ -190,9 +149,3 @@ function chooseElem(event){
         }
     }
 }
-
-
-
-</script>
-</body>
-</html>
