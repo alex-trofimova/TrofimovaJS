@@ -62,3 +62,46 @@ var fixedElemArr = [
     ];
 
 var fixedElemAreaTotal = 0;
+
+//массив с инфо о времени прохождения уровня
+
+var timeLevelArr = [60];
+
+var bestTimeLevel = Math.min.apply(null, timeLevelArr);
+console.log(bestTimeLevel);
+
+//обмен данными с удаленным сервером
+var ajaxHandlerScript="https://fe.it-academy.by/AjaxStringStorage2.php";
+var stringName = 'TROFIMOVA_PROJECT_COLOR_SQUARES';
+var updatePassword;
+
+//чтение данных
+getData();
+
+function getData() {
+    $.ajax(
+        {
+            url : ajaxHandlerScript, 
+            type : 'POST', dataType:'json',
+            data : { f : 'READ', n : stringName },
+            cache : false, 
+            success : readReady, error : errorHandler
+        }
+    );
+}
+
+function readReady(callresult) {
+    if ( callresult.error!=undefined )
+        alert(callresult.error);
+    else {
+        var levelInfo=JSON.parse(callresult.result);
+        var quantityInfoSpan=document.querySelector(".quantity_info");
+        quantityInfoSpan.textContent=levelInfo.length;
+        var bestTimeInfoSpan=document.querySelector(".best-time_info");
+        bestTimeInfoSpan.textContent=Math.max.apply(null, levelInfo);
+    }   
+}
+
+function errorHandler(jqXHR,statusStr,errorStr) {
+    alert(statusStr+' '+errorStr);
+}

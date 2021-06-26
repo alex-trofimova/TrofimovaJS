@@ -1,7 +1,7 @@
 "use strict";
 //ОБРАБОТЧИКИ РАЗНЫХ СОБЫТИЙ. ПОДПИСКА НА НИХ
 
-//0.События при загрузке страницы
+//1.События при загрузке страницы
 window.addEventListener('load',showAnim);
 
 function showAnim() {

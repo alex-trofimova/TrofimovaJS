@@ -257,7 +257,6 @@ function PartModel(level, type, number, color_number, x0, y0, x1, y1, x2, y2, x3
             self.transY = EO.pageY - pressShiftTop;
 
             self.getInfo();
-            var svgCont = document.getElementById('svgcont');
             
             //если хоть одна вершина заходит за края
             if ((self.arrPosX.some(checkRestrictXleft) === true) || 
@@ -374,7 +373,7 @@ function PartModel(level, type, number, color_number, x0, y0, x1, y1, x2, y2, x3
             self.rotateOriginY = parseFloat(partArr[6]);
 
             self.check();
-            console.log(fixedElemArr);
+            console.log(fixedElemAreaTotal);
         }
 
         else {
@@ -392,16 +391,11 @@ function PartModel(level, type, number, color_number, x0, y0, x1, y1, x2, y2, x3
                     delete fixedElemArr[k][unfixedpartId];
                     console.log(fixedElemArr[k]);
                     console.log(Object.keys(fixedElemArr[k]).length);
-
+                    //чтобы можно было отфиксировать и заново зафиксировать фигуру в квадрате
+                    //в случае, когда она там одна находилась
                     if (Object.keys(fixedElemArr[k]).length === 1){
                         delete fixedElemArr[k]['color'];
-                    }
-                    console.log(fixedElemArr);
-                    //console.log(fixedElemArr[k]);
-                    // if(Object.keys(fixedElemArr[k]).length === 1) {
-                    //     delete fixedElemArr[k]['color'];//"очищаю" цвет этого
-                    //     console.log(fixedElemArr[k]);
-                    // }                    
+                    }               
                     fixedElemAreaTotal-=self.area;
                 }
             }
@@ -486,8 +480,11 @@ function PartModel(level, type, number, color_number, x0, y0, x1, y1, x2, y2, x3
                         fixedElemArr[i]['color']=self.colorNumber;
                         fixedElemArr[i][self.id]=self.arrInfo;
                         fixedElemAreaTotal+=self.area;
-                        // console.log(fixedElemArr);    
-                        // console.log(fixedElemAreaTotal);    
+                        console.log(fixedElemArr);    
+                        console.log(fixedElemAreaTotal);
+                        if ((fixedElemAreaTotal===240000)||(fixedElemAreaTotal>240000)){//вынести в константы
+                            self.successView();
+                        }   
                     }
                     else {
                         console.log('что-то уже успели зафиксировать');
@@ -584,12 +581,11 @@ function PartModel(level, type, number, color_number, x0, y0, x1, y1, x2, y2, x3
                                             fixedElemArr[i][self.id]=self.arrInfo;
                                             fixedElemArr[i]['color']=self.colorNumber;
                                             fixedElemAreaTotal+=self.area;
-                                            // console.log(self.area);
-                                            // console.log(fixedElemAreaTotal);
+                                            console.log(self.area);
+                                            console.log(fixedElemAreaTotal);
                                             //проверка , что уровень пройден! ЗАМЕНИТЬ РЕЗУЛЬТАТ УСПЕХА!
-                                            if (fixedElemAreaTotal>240000){//вынести в константы
+                                            if ((fixedElemAreaTotal===240000)||(fixedElemAreaTotal>240000)){//вынести в константы
                                                 self.successView();
-                                                //alert('УРА!');
                                             }                                               
                                         }           
                             }                       

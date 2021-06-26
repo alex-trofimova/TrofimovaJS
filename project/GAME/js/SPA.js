@@ -23,8 +23,7 @@ var soundStatus = true;
     // #Menu - начальная страница меню (панели Правила, Играть и Настройки, плюс Звук вкл/выкл)
     // #Play - страница с уровнями
     // #Level_1(2,3,4,5,6) - страница определенного уровня игры
-    // #Rules - модальное окно с правилами игры
-    // #Settings - модальное окно установок (выбор палитры цветов)
+
 
     // отслеживается изменение закладки в УРЛе
     // оно происходит при любом виде навигации
@@ -36,6 +35,7 @@ var soundStatus = true;
 
     // хэш ссылок скриптов уровней
     var levels={
+        0: 'js/gameLevel1.js',
         1: 'js/gameLevel1.js',
         2: 'js/gameLevel2.js',
         3: 'js/gameLevel3.js',
@@ -66,7 +66,6 @@ var soundStatus = true;
 
         console.log('Новое состояние приложения:');
         console.log(SPAState);
-
 
         function includeScript(url) {
             var script = document.createElement('script');
@@ -109,11 +108,11 @@ var soundStatus = true;
                                     <div class="modal_text">
                                     "Сложи квадрат" &mdash; известная головоломка, в которой требуется 
                                     из нескольких фигурок различной формы сложить квадрат. Игра имеет несколько 
-                                    уровней сложности, чем дальше &mdash; тем больше разрезных частей<br>
+                                    уровней сложности, чем выше уровень &mdash; тем больше разрезных частей.<br>
                                     Фигурки можно перемещать, а также вращать с шагом в 45 градусов (левая клавиша мыши или пробел).<br>
                                     Разместив фигуру в квадрат, ее следует зафиксировать (правая клавиша мыши или Enter).<br>
                                     Каждый квадрат может быть заполнен фигурками только одного цвета.<br>
-                                    Уровень считается пройденным, если составлены все 6 квадратов 
+                                    Уровень считается пройденным, если составлены все 6 квадратов. 
                                     </div>
                                 </div>
                                 <div class="menu menu_play">
@@ -222,6 +221,16 @@ var soundStatus = true;
                                         </div>
                                     </div>
                                     <div class="icon level_info"><i class="fas fa-info"></i></div>
+                                    <div class="modal modal_info hidden">
+                                        <div class="modal_close_icon">
+                                            <i class="fas fa-times"></i>
+                                        </div>
+                                        <h2>Статистика прохождения уровня `+SPAState.levelnumber+`</h2>
+                                        <div class="modal_text">
+                                            <p>Уровень прошли <span class="quantity_info"></span> раз(а)</p>
+                                            <p>Худшее время: <span class="best-time_info"></span> секунд(ы)</p>
+                                        </div>
+                                    </div>
                                 </div>   
                             </div>`
                 
@@ -235,12 +244,13 @@ var soundStatus = true;
                                 </svg>
                             </div>
                         </div>`
-                pageHTML+=` <div class="modal modal_level modal_success hidden">
-                                <div class="modal_close_icon">
-                                    <i class="fas fa-times"></i>
-                                </div>                
-                                <div class="modal_text">
+                pageHTML+=` <div class="modal modal_level modal_success hidden">                
+                                <div class="modal_text-success">
                                     Уровень  `+SPAState.levelnumber+` пройден! Поздравляю!
+                                </div>
+                                <div class="modal_choose">
+                                    <div class="icon to-levels" onclick="switchToPlayPage()"><i class="fas fa-bars"></i></div>
+                                    <div class="icon to-next-level" onclick="switchToLevelPage(`+(parseInt(SPAState.levelnumber)+1)+`)"><i class="fas fa-step-forward"></i></div>
                                 </div>      
                             </div>`
             // includeScript("js/resize.js");
