@@ -75,4 +75,26 @@ function closeModalEsc(event){
     else return;
 }
 
+//5. Выключение звука
+var soundOnButton = document.querySelector(".sound-on");
+soundOnButton.addEventListener('click',turnOffSound);
 
+function turnOffSound() {
+    var soundOnButton = document.querySelector(".sound-on");
+    soundOnButton.classList.add('hidden');
+    var soundOffButton = document.querySelector(".sound-off");
+    soundOffButton.classList.remove('hidden');
+    soundStatus = false;
+}
+
+//6. Включение звука
+var soundOffButton = document.querySelector(".sound-off");
+soundOffButton.addEventListener('click',turnOnSound);
+
+function turnOnSound() {
+    var soundOnButton = document.querySelector(".sound-on");
+    soundOnButton.classList.remove('hidden');
+    var soundOffButton = document.querySelector(".sound-off");
+    soundOffButton.classList.add('hidden');
+    soundStatus = true;
+}

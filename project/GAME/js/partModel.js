@@ -374,6 +374,7 @@ function PartModel(level, type, number, color_number, x0, y0, x1, y1, x2, y2, x3
             self.rotateOriginY = parseFloat(partArr[6]);
 
             self.check();
+            console.log(fixedElemArr);
         }
 
         else {
@@ -389,8 +390,14 @@ function PartModel(level, type, number, color_number, x0, y0, x1, y1, x2, y2, x3
             for (var k=0; k<fixedElemArr.length; k++) {
                 if (unfixedpartId in fixedElemArr[k]) {
                     delete fixedElemArr[k][unfixedpartId];
-                    console.log(fixedElemArr);
                     console.log(fixedElemArr[k]);
+                    console.log(Object.keys(fixedElemArr[k]).length);
+
+                    if (Object.keys(fixedElemArr[k]).length === 1){
+                        delete fixedElemArr[k]['color'];
+                    }
+                    console.log(fixedElemArr);
+                    //console.log(fixedElemArr[k]);
                     // if(Object.keys(fixedElemArr[k]).length === 1) {
                     //     delete fixedElemArr[k]['color'];//"очищаю" цвет этого
                     //     console.log(fixedElemArr[k]);
@@ -479,11 +486,8 @@ function PartModel(level, type, number, color_number, x0, y0, x1, y1, x2, y2, x3
                         fixedElemArr[i]['color']=self.colorNumber;
                         fixedElemArr[i][self.id]=self.arrInfo;
                         fixedElemAreaTotal+=self.area;
-                        // console.log(fixedElemArr);
-                        console.log(self.area);
-                        console.log('первый раз');
-                        console.log(fixedElemAreaTotal);
-
+                        // console.log(fixedElemArr);    
+                        // console.log(fixedElemAreaTotal);    
                     }
                     else {
                         console.log('что-то уже успели зафиксировать');
@@ -531,7 +535,7 @@ function PartModel(level, type, number, color_number, x0, y0, x1, y1, x2, y2, x3
                                                 calculateTriangleArea(self.arrInfo[j],x3,x4,self.arrInfo[j+4],y3,y4)+
                                                 calculateTriangleArea(self.arrInfo[j],x4,x1,self.arrInfo[j+4],y4,y1); 
                                         }
-                                        console.log(sumAreas);
+                                        //console.log(sumAreas);
                                     }
 
                                     //с шестиугольником
@@ -559,12 +563,7 @@ function PartModel(level, type, number, color_number, x0, y0, x1, y1, x2, y2, x3
                                                 calculateTriangleArea(self.arrInfo[j],x5,x6,self.arrInfo[j+6],y5,y6)+
                                                 calculateTriangleArea(self.arrInfo[j],x6,x1,self.arrInfo[j+6],y6,y1); 
                                             }
-                                    }
-
-                                    function calculateTriangleArea(x1,x2,x3,y1,y2,y3) {
-                                        var a = Math.abs(x1*(y2-y3)+x2*(y3-y1)+x3*(y1-y2))/2;
-                                        return a;
-                                    } 
+                                        }
 
                                         function checkSum(element, index, array){
                                             if (element === area) {
@@ -575,22 +574,29 @@ function PartModel(level, type, number, color_number, x0, y0, x1, y1, x2, y2, x3
                                         //если хоть одна вершина пересекает зафиксированную фигуру, то фиксировать нельзя 
                                         if (sumAreas.some(checkSum) === true) {
                                             console.log('нельзя зафиксировать фигуру в этом месте');
-                                            break;   
-                                        }  
-                            }
-                            self.isfixed = true;
-                            self.ismoveable = false;
-                            self.fixView();
-                            fixedElemArr[i][self.id]=self.arrInfo;
-                            fixedElemArr[i]['color']=self.colorNumber;
-                            fixedElemAreaTotal+=self.area;
-                            console.log('второй раз');
-                            console.log(fixedElemAreaTotal);
-                            //проверка , что уровень пройден! ЗАМЕНИТЬ РЕЗУЛЬТАТ УСПЕХА!
-                            if (fixedElemAreaTotal>240000){//вынести в константы
-                                self.successView();
-                            }
-                            
+                                            fixedElemArr[i]['color']=self.colorNumber;  
+                                        }
+
+                                        else {
+                                            self.isfixed = true;
+                                            self.ismoveable = false;
+                                            self.fixView();
+                                            fixedElemArr[i][self.id]=self.arrInfo;
+                                            fixedElemArr[i]['color']=self.colorNumber;
+                                            fixedElemAreaTotal+=self.area;
+                                            // console.log(self.area);
+                                            // console.log(fixedElemAreaTotal);
+                                            //проверка , что уровень пройден! ЗАМЕНИТЬ РЕЗУЛЬТАТ УСПЕХА!
+                                            if (fixedElemAreaTotal>240000){//вынести в константы
+                                                self.successView();
+                                                //alert('УРА!');
+                                            }                                               
+                                        }           
+                            }                       
+                                        function calculateTriangleArea(x1,x2,x3,y1,y2,y3) {
+                                            var a = Math.abs(x1*(y2-y3)+x2*(y3-y1)+x3*(y1-y2))/2;
+                                            return a;
+                                        } 
                         }
                         else {
                             console.log('Фигура не того цвета');

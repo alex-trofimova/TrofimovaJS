@@ -1,4 +1,5 @@
 "use strict";
+
 var svgContainer = document.getElementById('svgcont');
 
 var squareCont = document.createElementNS("http://www.w3.org/2000/svg", "rect");
@@ -61,5 +62,3 @@ var fixedElemArr = [
     ];
 
 var fixedElemAreaTotal = 0;
-console.log(fixedElemArr);
-console.log(fixedElemAreaTotal);

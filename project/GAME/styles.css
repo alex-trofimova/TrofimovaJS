@@ -185,6 +185,14 @@ body {
     left: 25%;
     top: 25%;
 }
+
+.modal_level {
+    width: 40%;
+    height: 10%;
+    
+    left: 30%;
+    top: 45%;
+}
 .modal_mouse, .modal_keyboard {
     width: 40%;
     height: 30%;

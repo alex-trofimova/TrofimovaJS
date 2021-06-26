@@ -75,10 +75,13 @@ function PartView(){
         var anim = figure.getElementsByClassName("animation")[0];
         anim.setAttribute('from', "1");
         anim.setAttribute('to', "0.2");
-        fixAudio.play();
+        
         console.log('должна пойти анимация');
         //для клавиатуры
         figure.setAttribute('fill-opacity', '0.2');
+        if (soundStatus) {
+            fixAudio.play();
+        }
     }
 
     self.unfix = function () {
@@ -101,8 +104,12 @@ function PartView(){
     }
 
     self.showSuccess = function () {
-        succesAudio.play();
-        alert('УРА!');
+        if(soundStatus){
+            succesAudio.play();
+        }
+        var successModal = document.querySelector(".modal_success");
+        successModal.classList.remove('hidden');
+        //alert('УРА!');
     }
 
 }

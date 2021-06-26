@@ -17,25 +17,7 @@ var forbidAudio = new Audio("music/forbid.mp3");
 // 3) прохождении уровня
 var succesAudio = new Audio("music/success.mp3");
 
-//ИЗМЕНЕНИЕ ШИРИНЫ ЭКРАНА
-window.onresize=resizeGameField;
-var contGame = document.querySelector(".game_container");
-contGame.width = document.body.clientWidth;
-
-function resizeGameField() {
-    contGame.width = document.body.clientWidth;
-    console.log(contGame.width);
-    
-    if (contGame.width<540) {
-        var svgCont = document.getElementById('svgcont');
-        console.log('ширина стала меньше 540');
-        svgCont.setAttribute('viewBox', '40 0 760 700');
-    }
-    else {
-        var svgCont = document.getElementById('svgcont');
-        svgCont.setAttribute('viewBox', '0 0 1200 480');
-    }
-}
+var soundStatus = true;
 
 // в закладке URL-а будут храниться разделенные подчеркиваниями слова
     // #Menu - начальная страница меню (панели Правила, Играть и Настройки, плюс Звук вкл/выкл)
@@ -48,7 +30,7 @@ function resizeGameField() {
     // оно происходит при любом виде навигации
     // в т.ч. при нажатии кнопок браузера ВПЕРЕД/НАЗАД
     window.onhashchange=switchToStateFromURLHash;
-
+    var contGame = document.querySelector(".game_container");
     // текущее состояние приложения
     var SPAState={};
 
@@ -124,7 +106,15 @@ function resizeGameField() {
                                         <i class="fas fa-times"></i>
                                     </div>
                                     <h2>Правила</h2>
-                                    <div class="modal_text">текст правил</div>
+                                    <div class="modal_text">
+                                    "Сложи квадрат" &mdash; известная головоломка, в которой требуется 
+                                    из нескольких фигурок различной формы сложить квадрат. Игра имеет несколько 
+                                    уровней сложности, чем дальше &mdash; тем больше разрезных частей<br>
+                                    Фигурки можно перемещать, а также вращать с шагом в 45 градусов (левая клавиша мыши или пробел).<br>
+                                    Разместив фигуру в квадрат, ее следует зафиксировать (правая клавиша мыши или Enter).<br>
+                                    Каждый квадрат может быть заполнен фигурками только одного цвета.<br>
+                                    Уровень считается пройденным, если составлены все 6 квадратов 
+                                    </div>
                                 </div>
                                 <div class="menu menu_play">
                                     <button class="play_button" onclick="switchToPlayPage()">Играть</button>
@@ -245,7 +235,15 @@ function resizeGameField() {
                                 </svg>
                             </div>
                         </div>`
-            
+                pageHTML+=` <div class="modal modal_level modal_success hidden">
+                                <div class="modal_close_icon">
+                                    <i class="fas fa-times"></i>
+                                </div>                
+                                <div class="modal_text">
+                                    Уровень  `+SPAState.levelnumber+` пройден! Поздравляю!
+                                </div>      
+                            </div>`
+            // includeScript("js/resize.js");
             includeScript("js/partModel.js");
             includeScript("js/partView.js");
             includeScript("js/partControl.js");
@@ -283,5 +281,7 @@ function resizeGameField() {
 
     // переключение в состояние, которое сейчас прописано в закладке УРЛ
   switchToStateFromURLHash();
+
+  
 
       
