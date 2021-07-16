@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 1</title>
+</head>
+<body>
+    <input type="button" value="start" onclick="startTimer( )">
+    <input type="button" value="stop" onclick="stopTimer( )">
+<script>
+// Задание:
+// Вывести в консоль буквы от "A" до "F", по одной букве в секунду.
+// Одновременно много таймеров (setTimeout/setInterval) не запускать, обойтись одним.
+
+"use strict";
+//ввожу переменные
+var startTime; //для даты
+var timer; //для таймера, чтобы потом его отключать либо по завершении вывода всех букв, либо по кнопке стоп
+var timerStatus = true; // чтобы нельзя было в процессе работы таймера его перезапускать
+var timeInSec=0; // для секунд
+var lettersArr = ['A', 'B', 'C', 'D', 'E', 'F'] // массив с необходимыми буквами (если нужно, можно добавить новые буквы или заменить эти)
+
+
+//описание функции запуска таймера
+function startTimer() {
+    if (timerStatus) {
+        timerStatus = false;
+        startTime = new Date();
+        timer = setInterval(tick,1000);
+        //console.log('таймер запущен!');
+        console.log(lettersArr[0]);//для вывода первой буквы
+    }
+    else return;    
+}
+
+//описание функции, которая работает по таймеру, а именно, выводит буквы
+function tick(){
+    var timeInSec=Math.round(((new Date)-startTime)/1000);//"достаю" секунды 
+    console.log(lettersArr[timeInSec]); //вывод букв
+    if (timeInSec==(lettersArr.length-1)) { //если прошли по всему массиву, останавливаю таймер
+        stopTimer();
+    }
+}
+
+//описание функции остановки таймера (можно вызвать и по кнопке стоп)
+function stopTimer() {
+    clearInterval(timer);
+    console.log('=======');//для визуального разделения выводимых данных (если несколько раз запускать/останавливать таймер)
+    //console.log('таймер остановлен!');
+    timeInSec=0;
+    timerStatus = true;
+}
+
+</script>    
+</body>
+</html>

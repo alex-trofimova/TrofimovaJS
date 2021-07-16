@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 4</title>
+</head>
+<body>
+    <!--Подключение jquery-->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" 
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" 
+        crossorigin="anonymous">
+</script>
+<script>
+//Задание:
+//1. Загрузить через AJAX файл https://fe.it-academy.by/Examples/test_JSE.txt
+//2. Регулярным выражением найти в загруженном тексте 
+//   все валидные строковые константы JavaScript и вывести их в консоль.
+
+"use strict";
+//1. Загрузка файла
+loadData();
+
+function loadData() {
+    $.ajax("https://fe.it-academy.by/Examples/test_JSE.txt",
+        {   type:'GET', 
+            dataType:'text', 
+            success: function (data) {
+                getText(data);    
+            },
+            error:errorHandler }
+    );
+}
+
+function errorHandler(jqXHR,statusStr,errorStr) {
+        alert(statusStr+' '+errorStr);
+}
+
+function getText(text){
+    //регулярное выражение: 
+    //запоминаю кавычку (ее тип), потом что-нибудь в количестве 1 и более в ленивом режиме, потом та же кавычка 
+    var textRe = /(["']).+?\1/g;
+    // использую метод match: с флагом g он возвращает массив со строками под регуляркой    
+    var resArr = text.match(textRe);
+    //циклом по массиву вывожу в консоль результаты 
+    for (var i=0; i<resArr.length; i++) {
+        console.log(resArr[i]);
+    } 
+}
+
+</script>   
+</body>
+</html>

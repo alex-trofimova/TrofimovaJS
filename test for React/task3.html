@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task 3</title>
+    <style>
+        .button {
+            margin: 0 5px;
+        }
+    </style>
+</head>
+<body>
+<!--Подключение jquery-->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js" 
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" 
+        crossorigin="anonymous">
+</script>
+ 
+<script>
+// Задание:
+// Задание аналогично заданию №2, только класс должен быть разработан в ES6-стиле ООП (class).
+
+"use strict";
+
+//1. ОПИСАНИЕ класса и его методов (в прототипе)
+class PoemButton {
+    constructor(buttonCaption, alertText) {
+        this.buttonCaption = buttonCaption;
+        this.alertText = alertText;
+    }
+
+    createButton() {
+        let simpleButton = document.createElement('input');
+        simpleButton.type = 'button';
+        simpleButton.setAttribute('class', 'button');
+        simpleButton.value = this.buttonCaption;
+        document.body.append(simpleButton);
+        simpleButton.addEventListener('click', this.buttonPressed.bind(this), false);
+    }
+
+    buttonPressed() {
+        let textMessage = this.alertText;
+        alert(textMessage);
+    }
+}
+
+//2. ЗАГРУЗКА массива данных через AJAX 
+loadData();
+
+function loadData() {
+    $.ajax("https://fe.it-academy.by/Examples/test_JSE.json",
+        {   type:'GET', 
+            dataType:'json', 
+            success: function (data) {
+                getDataToCreateObjects(data);    
+            },
+            error:errorHandler }
+    );
+}
+
+function errorHandler(jqXHR,statusStr,errorStr) {
+        alert(statusStr+' '+errorStr);
+}
+
+// 3. Создание объектов класса из загруженного массива (циклом по массиву)
+function getDataToCreateObjects(arr) {
+    for (var i=0; i<arr.length; i++){
+        var poemString = new PoemButton(arr[i].buttonCaption, arr[i].alertText);
+        poemString.createButton();
+    }
+}
+
+
+</script>
+   
+</body>
+</html>
